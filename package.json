@@ -19,7 +19,6 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@shelf/jest-mongodb": "^2.0.3",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
