@@ -1,10 +1,12 @@
 const multerImage = require('multer');
 const path = require('path');
+const fs = require('fs')
 
 module.exports = (multerImage({
   storage: multerImage.diskStorage({
 
     destination: (req, file, cb) => {
+      fs.mkdirSync('./public/images/posts', { recursive: true })
       cb(null, './public/images/posts');
     },
     filename: (req, file, cb) => {
