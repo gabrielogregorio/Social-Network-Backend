@@ -1,26 +1,46 @@
+require('dotenv/config');
 const express = require('express');
 const router = express.Router()
 const DataPosts = require('../factories/dataPosts');
-const multerImagePosts = require('../middlewares/multerImagePosts');
 const userAuth = require('../middlewares/userAuth');
 const SavePostsService = require('../services/SavePosts')
 const PostService = require('../services/Post');
 const { processId } = require('../util/textProcess');
 const UserService = require('../services/User')
-require('dotenv/config');
+const { bucket } = require('./bucket')
+const {format} = require('util');
+const Multer = require('multer');
 
-router.post('/postLoadFile', userAuth, multerImagePosts.single('image'), async(req, res) => {
+const multer = Multer({
+  storage: Multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // no larger than 5mb, you can change as needed.
+  },
+});
+
+
+router.post('/postLoadFile', userAuth, multer.single('image'), async(req, res, next) => {
   var user = processId(req.data.id)
 
-  if (user == undefined || user == '') { return res.sendStatus(400) }
-
-  if (req.file) {
-    img = req.file['filename']
-  } else {
-    img = ''
+  if (!req.file || user === undefined) {
+    res.status(400).send('No file uploaded.');
+    return;
   }
 
-  return res.json({file:img})
+  const blob = bucket.file(req.file.originalname);
+  const blobStream = blob.createWriteStream();
+  
+  blobStream.on('error', err => {
+    next(err);
+  });
+  
+  blobStream.on('finish', () => {
+    const publicUrl = format(
+      `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+    );
+    res.json({file:publicUrl})
+  });
+  blobStream.end(req.file.buffer);  
 })
 
 

@@ -1,33 +1,54 @@
+
+require('dotenv/config');
 const express = require('express');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const userAuth = require('../middlewares/userAuth');
 const router = express.Router()
-const multerImage = require('../middlewares/multerImage');
 const ItemBioService = require('../services/ItemBio')
-require('dotenv/config');
 const jwtSecret = process.env.JWT_SECRET
 const { processId } = require('../util/textProcess');
 const userService = require('../services/User');
 const { body, validationResult } = require('express-validator');
 const logger = require('../logger');
+const {format} = require('util');
+const { bucket } = require('./bucket')
+
+const Multer = require('multer');
+
+const multer = Multer({
+  storage: Multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // no larger than 5mb, you can change as needed.
+  },
+});
 
 
-router.post('/userLoadFile', userAuth, multerImage.single('image'), async(req, res) => {
+router.post('/userLoadFile', userAuth, multer.single('image'), async(req, res, next) => {
   logger.debug('Load image user')
   user = processId(req.data.id)
 
-  if (user == undefined) {
-    return res.sendStatus(400)
+  if (!req.file || user === undefined) {
+    res.status(400).send('No file uploaded.');
+    return;
   }
 
-  if (req.file) {
-    img = req.file['filename']
-  } else {
-    img = ''
-  }
-  return res.json({file:img})
+  const blob = bucket.file(req.file.originalname);
+  const blobStream = blob.createWriteStream();
+  
+  blobStream.on('error', err => {
+    next(err);
+  });
+  
+  blobStream.on('finish', () => {
+    const publicUrl = format(
+      `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+    );
+    res.json({file:publicUrl})
+  });
+  blobStream.end(req.file.buffer);  
 })
+
 
 /* Cria um usuário */
 router.post('/user', 

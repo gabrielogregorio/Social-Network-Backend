@@ -25,7 +25,6 @@ class UserService {
     return user;
   }
 
-  
   /*Retorna dados crus, precisa ser ajustado*/
   async FindByIdNotPopulate(id) {
     let user = await User.findById({_id:id})
@@ -62,8 +61,6 @@ class UserService {
 
     return userFactories
   }
-
-
 }
 
 module.exports = new UserService();

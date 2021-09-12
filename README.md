@@ -6,6 +6,19 @@ Para executar os testes automatizados é preciso ter o jest instalado de forma g
 ```shell
 npm run test
 ```
+### Serviços
+#### Configuração do .env
+Será preciso uma conta no mongodb atlas e o uso de pelo menos a camada gratuita do Google Buckets.
+
+| Item | Descrição | Exemplo |
+|------|-----------|---------|
+| DB_MONGO_URI | É preciso configurar o arquivo .env, para isso será preciso obter uma URI do mongodb | mongodb+srv://dbNameRedeSocial:yourPassword@cluster0.4oubv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority |
+| JWT_SECRET | Segredo do JWT | QUALQUER COISA ALEATORIA COMO CHAVE |
+| GCLOUD_STORAGE_BUCKET | Nome de um bucket no Google | myBucketName |
+| GCLOUD_PROJECT_ID | Projeto no Google Console | project-music-1234500 |
+
+### Configuração do bucket
+Crie um arquivo chamado bucket-config.json, você deverá colocar os dados de uma chave do seu google bucket como json.
 
 ### Servidor   
 Para executar o backend é preciso configurar o arquivo .env.example, renomeando para .env, e então você poderá alterar os valores para a sua preferência.

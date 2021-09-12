@@ -1,3 +1,4 @@
+require('dotenv/config');
 const express = require('express');
 const app = express()
 const mongoose = require('mongoose');
@@ -13,15 +14,8 @@ const userAuth = require('../src/middlewares/userAuth');
 const cors = require('cors');
 const bcrypt = require('bcrypt')
 const logger = require('./logger');
-
-require('dotenv/config');
-
-
-const password = process.env.DB_PASSWORD;
-const dbuser = process.env.DB_USER;
 const test_user_name = process.env.TEST_USER_NAME
 const test_user2_name = process.env.TEST_USER2_NAME
-
 
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
@@ -36,8 +30,7 @@ app.use('/', PostShareController)
 app.use('/', PostLikeController)
  
 mongoose.set('useFindAndModify', false)
-const uri = `mongodb+srv://${dbuser}:${password}@cluster0.4oubv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
-mongoose.connect(uri,
+mongoose.connect(process.env.DB_MONGO_URI,
   {useNewUrlParser: true, useUnifiedTopology: true})
     .then(() => {}).catch(error => console.log(error))
 
@@ -52,7 +45,6 @@ app.get('/test', async (req, res) => {
 app.post('/validate', userAuth, (req, res) => {
   return res.sendStatus(200)
 })
-
 
 /* Rotas de desenvolvimento. É preciso aumentar a segurança delas e impedir acesso indevido, hoje
 elas estão soltinhas para qualquer um */
