@@ -8,11 +8,41 @@ npm run test
 ```
 
 ### Buildpack heroku
-Leia a documentalção do porjeto
-heroku buildpacks:set https://github.com/gerywahyunugraha/heroku-google-application-credentials-buildpack -a appname
+1. Faça o deply da aplicação
+2. É preciso configuar todas as variáveis de ambientes, igual no arquivo .env no heroku.
+3. Adicione a variável de GOOGLE_APPLICATION_CREDENTIALS, mantendo esses valores exatos.
+```
+heroku login
+heroku config:set GOOGLE_APPLICATION_CREDENTIALS='google-credentials.json'
+```
 
+4. Adicione o buildpack no nodejs
+```
+heroku buildpacks:set heroku/nodejs
+```
 
+5. Adicione o buildpack do buyersight como indice 1, na frente do buildpack do nodejs
+```
+heroku buildpacks:add --index 1 https://github.com/buyersight/heroku-google-application-credentials-buildpack
+```
 
+6. Adicione o GOOGLE_CREDENTIALS, informando todas as credenciais do Google
+```
+{
+  "type": "...",
+  "project_id": "...",
+  "private_key_id": "...",
+  "private_key": "...",
+  "client_email": "...",
+  "client_id": "...",
+  "auth_uri": "...",
+  "token_uri": "...",
+  "auth_provider_x509_cert_url": "...",
+  "client_x509_cert_url": "..."
+}
+```
+
+7. Refaça o deploy
 
 ### Serviços
 #### Configuração do .env
