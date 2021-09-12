@@ -64,6 +64,10 @@ app.post('/configure', async (req, res) => {
   res.json({email:test_user_name + message, id:newUser._id, email:test_user2_name + message, id2:newUser2._id,}); 
 })
 
+app.get('/', (req, res) => {
+  res.send('ola')
+})
+
 app.post('/endconfigure', async (req, res) => {
   var message = req.body.extra;
   if (message == undefined) {message = ''}
