@@ -23,7 +23,7 @@ const multer = Multer({
   },
 });
 
-
+/*
 router.post('/userLoadFile', userAuth, multer.single('image'), async(req, res, next) => {
   logger.debug('Load image user')
   user = processId(req.data.id)
@@ -49,7 +49,7 @@ router.post('/userLoadFile', userAuth, multer.single('image'), async(req, res, n
   blobStream.end(req.file.buffer);  
 })
 
-
+*/
 /* Cria um usuário */
 router.post('/user', 
     body('name').isLength({ min: 2, max:50 }),

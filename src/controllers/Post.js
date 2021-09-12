@@ -18,6 +18,7 @@ const multer = Multer({
   },
 });
 
+/*
 
 router.post('/postLoadFile', userAuth, multer.single('image'), async(req, res, next) => {
   var user = processId(req.data.id)
@@ -43,7 +44,7 @@ router.post('/postLoadFile', userAuth, multer.single('image'), async(req, res, n
   blobStream.end(req.file.buffer);  
 })
 
-
+*/
 router.post('/post', userAuth, async(req, res) => {
   let { body, test, img} = req.body;
 
