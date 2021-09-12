@@ -7,7 +7,7 @@ const SavePostsService = require('../services/SavePosts')
 const PostService = require('../services/Post');
 const { processId } = require('../util/textProcess');
 const UserService = require('../services/User')
-//const { bucket } = require('./bucket')
+const { bucket } = require('./bucket')
 const {format} = require('util');
 const Multer = require('multer');
 
@@ -18,7 +18,6 @@ const multer = Multer({
   },
 });
 
-/*
 
 router.post('/postLoadFile', userAuth, multer.single('image'), async(req, res, next) => {
   var user = processId(req.data.id)
@@ -44,7 +43,7 @@ router.post('/postLoadFile', userAuth, multer.single('image'), async(req, res, n
   blobStream.end(req.file.buffer);  
 })
 
-*/
+
 router.post('/post', userAuth, async(req, res) => {
   let { body, test, img} = req.body;
 
