@@ -1,117 +1,37 @@
 # API da rede social
 
-### Serviços
-#### Configuração do .env
-Será preciso uma conta no mongodb atlas e o uso de pelo menos a camada gratuita do Google Buckets.
+## Configurações básicas
+Será preciso uma conta no mongodb atlas e o uso de pelo menos a camada gratuita do Google Buckets. Já tenho um tutorial sobre os dois, e o do Google Buckets é para esse projeto
+
+* [Configuração do MongodbAtlas](https://github.com/gabrielogregorio/MongodbAtlas)    
+* [Configuração do Google Buckets](https://github.com/gabrielogregorio/GoogleBuckets)    
+
+## Configurações do arquivo .env
+Configure o arquivo .env (crie ele com base no .env.example)
 
 | Item | Descrição | Exemplo |
 |------|-----------|---------|
-| DB_MONGO_URI | É preciso configurar o arquivo .env, para isso será preciso obter uma URI do mongodb | mongodb+srv://dbNameRedeSocial:yourPassword@cluster0.4oubv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority |
-| JWT_SECRET | Segredo do JWT | QUALQUER COISA ALEATORIA COMO CHAVE |
-| GCLOUD_STORAGE_BUCKET | Nome de um bucket no Google | myBucketName |
+| DB_MONGO_URI | URI do mongodb | mongodb+srv://dbNameRedeSocial:yourPassword@cluster0... |
+| JWT_SECRET | Segredo do JWT | QualquerCoisa |
+| GCLOUD_STORAGE_BUCKET | Nome do bucket Google | myBucketName |
 | GCLOUD_PROJECT_ID | Projeto no Google Console | project-music-1234500 |
 
-Faça funcionar no local.
-
-
-## Configurtação do buckets do Google
-
-https://console.cloud.google.com/cloud-resource-manager?folder=&organizationId=0&hl=pt-br
-Crie um projeto
-
-1. Crie um novo projeto No console.cloud.google.com. Depois de criado, espere um pouco e depois atualize a página
-![](images/tutorial/001.png)
-
-2. Volte na página inicial e você verá algo parecido com isso
-![](images/tutorial/002.png)
-
-3. Na barra superior de busca, procure pelo 'Cloud Storage'
-![](images/tutorial/003.png)
-
-4. Crie um bucket
-![](images/tutorial/004.png)
-
-5. De um nome ao Bucket
-![](images/tutorial/005.png)
-
-6. Pode mentar as opções padrões
-![](images/tutorial/006.png)
-
-7. Continue com as opções padrões
-![](images/tutorial/007.png)
-
-9. Desative a opção para aplicar prevenção a acesso publico ao bucket
-![](images/tutorial/009.png)
-
-10 - Mantenha as opções conforme abaixo
-![](images/tutorial/010.png)
-
-
-
-
-11 - Com o bucket criado, clique em 'Intervalos' e depois no bucket, clique nos três pontinhos e escolha a opção Editar Permissões do bucket
-![](images/tutorial/011.png)
-
-12. Adicione um principal, vamos tornar o acesso ao bucket publico
-![](images/tutorial/012.png)
-
-13 - Clique no campo, escolha a opção Cloud Storage, Leitor de objetos do storage e por fim a opção leitor de objetos do storage
-![](images/tutorial/013.png)
-
-14 - Confirme a opção
-![](images/tutorial/015.png)
-
-15 - Agora vamos obter as credenciais para acessar e manipularmos o bucket. Faça a busca por API Credenciais
-![](images/tutorial/016.png)
-
-16 - Crie uma credencial como conta do serviço
-![](images/tutorial/017.png)
-
-17 - Escolha o nome da conta de serviço
-![](images/tutorial/018.png)
-
-18 - Escolha a opção cloud storage, administrador do storage.
-![](images/tutorial/019.png)
-
-8. Pode deixar tudo em branco
-![](images/tutorial/008.png)
-
-
-
-
-
-
-
-
-
-
-19 - Conta criada, clique nela
-![](images/tutorial/020.png)
-
-20 - Clique em adicionar a chaves
-![](images/tutorial/021.png)
-
-21 - Crie uma chave
-![](images/tutorial/022.png)
-
-22 - Escolha a chave como Json
-![](images/tutorial/023.png)
-
-23 - Faça o download da chave json, e preencha os campos, salvando no arquivo 'google-credentials.json'.
-![](images/tutorial/024.png)
-
-24 - O arquivo deverá ficar +- assim, obviamente com os campos preenchidos.
-![](images/tutorial/25.png)
-
-25 - Preencha o arquivo .env, por enquanto somente os dois campos referentes ao Google Storage (Poject ID encontra no Json, e o Storage Bucket é o nome do bucket que você criou)
+## Testes
+Para executar os testes automatizados é preciso ter o jest instalado de forma global. Após isso, execute o comando abaixo:
+  
+```shell
+npm run test
 ```
-GCLOUD_PROJECT_ID
-GCLOUD_STORAGE_BUCKET
+
+## Executar o projeto
+Para executar a aplicação, rode o comando abaixo
+```shell
+node src/server.js
 ```
 
 ## Deploy no heroku
 1. Faça o deply da aplicação
-2. É preciso configuar todas as variáveis de ambientes, igual no arquivo .env no heroku. (Settings > Reveal Config Vars)
+2. É preciso configurar todas as variáveis de ambientes, igual no arquivo .env no heroku. (Settings > Reveal Config Vars)
 3. Adicione a variável de GOOGLE_APPLICATION_CREDENTIALS, mantendo esses valores exatos.
 > Você precisa estar no repositório que está vinculado ao deploy no heroku
 ```
@@ -119,17 +39,17 @@ heroku login
 heroku config:set GOOGLE_APPLICATION_CREDENTIALS='google-credentials.json'
 ```
 
-4. Adicione o buildpack no nodejs (Se o buildpack já existir na aplicação, ok, sem panico, tudo certo!)
+4. Adicione o buildpack no nodejs (Se o buildpack já existir na aplicação, ok, sem pânico, tudo certo!)
 ```
 heroku buildpacks:set heroku/nodejs
 ```
 
-5. Adicione o buildpack do buyersight como indice 1, na frente do buildpack do nodejs
+5. Adicione o buildpack do buyersight como índice 1, na frente do buildpack do nodejs
 ```
 heroku buildpacks:add --index 1 https://github.com/buyersight/heroku-google-application-credentials-buildpack
 ```
 
-6. Adicione a variável de ambiente 'GOOGLE_CREDENTIALS', informando todas as credenciais do Google (Aquela que você fez o download e salvou no arquivo 'google-credentials.json')
+6. Adicione a variável de ambiente 'GOOGLE_CREDENTIALS', informando todas as credenciais do Google (Aquela que você faça o download e salvou no arquivo 'google-credentials.json')
 ```
 {
   "type": "...",
@@ -147,39 +67,9 @@ heroku buildpacks:add --index 1 https://github.com/buyersight/heroku-google-appl
 
 7. Refaça o deploy (git push, uma simples modificação na aplicação e um git push)
 
-### TDD 
-Para executar os testes automatizados é preciso ter o jest instalado de forma global. Após isso, execute o comando abaixo:
-  
-```shell
-npm run test
-```
+-----------
 
-
-
-### Configuração do bucket
-Crie um arquivo chamado bucket-config.json, você deverá colocar os dados de uma chave do seu google bucket como json.
-
-### Servidor   
-Para executar o backend é preciso configurar o arquivo .env.example, renomeando para .env, e então você poderá alterar os valores para a sua preferência.
-
-Também será preciso iniciar o mongodb, no meu caso, estou usando na minha máquina e portanto preciso abrir o Prompt de comando como administrador e rodar o seguinte comando
-
-```shell
-net start mongodb
-```
-
-A saida deverá ser algo como
-
-> O serviço de MongoDB Server (MongoDB) está sendo iniciado..
-> O serviço de MongoDB Server (MongoDB) foi iniciado com êxito.
-
-Com o mongodb iniciado, para iniciar o servidor você precisa executar o seguinte comando
-```shell
-node src/server.js
-```
-
-
-# Documentação parcial.
+# Documentação da API
 ## Endpoints   
 ### <img src="images/post.png" height="18"> - /user
 
@@ -434,7 +324,6 @@ Token inválido ou um usuário tentou editar outro (Mesmo que o outro não exist
 
 --------------------
 ### <img src="images/delete.png" height="18"> - /user/:id
-
 
 1. Não implementado ainda
 2. Documetação de postagem a desenvolver....
