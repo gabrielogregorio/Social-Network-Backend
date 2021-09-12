@@ -6,6 +6,14 @@ Para executar os testes automatizados é preciso ter o jest instalado de forma g
 ```shell
 npm run test
 ```
+
+### Buildpack heroku
+Leia a documentalção do porjeto
+heroku buildpacks:set https://github.com/gerywahyunugraha/heroku-google-application-credentials-buildpack -a appname
+
+
+
+
 ### Serviços
 #### Configuração do .env
 Será preciso uma conta no mongodb atlas e o uso de pelo menos a camada gratuita do Google Buckets.
