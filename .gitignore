@@ -9,7 +9,7 @@ lerna-debug.log*
 .env
 .pnpm-debug.log*
 
-bucket-config.json
+google-credentials.json
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
