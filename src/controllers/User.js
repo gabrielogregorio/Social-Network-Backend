@@ -12,7 +12,7 @@ const userService = require('../services/User');
 const { body, validationResult } = require('express-validator');
 const logger = require('../logger');
 const {format} = require('util');
-const { bucket } = require('./bucket')
+//const { bucket } = require('./bucket')
 
 const Multer = require('multer');
 
