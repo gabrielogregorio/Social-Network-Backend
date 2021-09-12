@@ -1,6 +1,6 @@
 # API da rede social
 
-### TDD
+### TDD 
 Para executar os testes automatizados é preciso ter o jest instalado de forma global. Após isso, execute o comando abaixo:
 
 ```shell
