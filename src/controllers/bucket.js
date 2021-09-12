@@ -10,7 +10,6 @@ try {
     keyFilename : path.join(__dirname, '../../google-credentials.json')
   });   
 } catch(error) {
-  console.log('aaaaaaaaaaa')
   console.log(error)
 }
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
