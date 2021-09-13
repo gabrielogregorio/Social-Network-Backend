@@ -10,6 +10,7 @@ const UserService = require('../services/User')
 const { bucket } = require('./bucket')
 const {format} = require('util');
 const Multer = require('multer');
+const { uuid } = require('uuidv4');
 
 const multer = Multer({
   storage: Multer.memoryStorage(),
@@ -26,8 +27,8 @@ router.post('/postLoadFile', userAuth, multer.single('image'), async(req, res, n
     res.status(400).send('No file uploaded.');
     return;
   }
-
-  const blob = bucket.file(req.file.originalname);
+  
+  const blob = bucket.file(`${Date.now().toString()}-${uuid()}`);
   const blobStream = blob.createWriteStream();
   
   blobStream.on('error', err => {

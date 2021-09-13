@@ -13,6 +13,7 @@ const { body, validationResult } = require('express-validator');
 const logger = require('../logger');
 const {format} = require('util');
 const { bucket } = require('./bucket')
+const { uuid } = require('uuidv4');
 
 const Multer = require('multer');
 
@@ -32,8 +33,7 @@ router.post('/userLoadFile', userAuth, multer.single('image'), async(req, res, n
     res.status(400).send('No file uploaded.');
     return;
   }
-
-  const blob = bucket.file(req.file.originalname);
+  const blob = bucket.file(`${Date.now().toString()}-${uuid()}`);
   const blobStream = blob.createWriteStream();
   
   blobStream.on('error', err => {
