@@ -68,7 +68,7 @@ router.post('/user',
   try {
     let user = await userService.UserExistsByEmail(req.body.email)
     if (user != undefined) {
-      res.statusCode = 400;
+      res.statusCode = 409;
       return res.json({error: 'E-mail já cadastrado!'})
     }
 

@@ -205,7 +205,7 @@ describe("Testes gerais", () => {
 
   test("Deve impedir um cadastro com e-mail repetido", () => {
     return request.post('/user').send(user).then(res => {
-      expect(res.statusCode).toEqual(400)
+      expect(res.statusCode).toEqual(409)
       expect(res.body.error).toEqual('E-mail já cadastrado!')
     })
   })

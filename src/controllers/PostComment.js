@@ -49,7 +49,7 @@ router.post('/post/comment/:id', userAuth,  async (req, res) => {
 
 router.delete('/post/comment/:idComment', userAuth,  async (req, res) => { 
   var id = processId(req.params.idComment)
-  var user = processId(req.data.id)
+  var user = processId(req.data.id) // id do usuário obtido pelo token
 
   if ( id == undefined || user == undefined ) {
     return res.sendStatus(400)
