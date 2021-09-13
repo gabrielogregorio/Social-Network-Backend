@@ -28,12 +28,13 @@ beforeAll(() => {
         user.idMessage = res.body.id;
         return request.post('/auth').send({email: user2.email, password: user2.password}).then(res => {
             user2.idMessage = res.body.id;
-            return
+            return;
         })
       })
     })
   })
 })
+
 afterAll(() => {
   return request.delete(`/user/${user.email}`).then(() => {
     return request.delete(`/user/${user2.email}`).then(() => {

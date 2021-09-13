@@ -37,13 +37,17 @@ let user2 = {
 }
 
 beforeAll(() => {
-  return request.post('/user').send(user).then(res => {
-    idUsuarioValido = res.body.id;
-    return request.post('/user').send(user2).then(res => {
-      idUsuario2Valido = res.body.id;
-      token2Valido = { authorization:"Bearer " + res.body.token}
-      return request.post('/auth').send({email: user.email, password: user.password}).then(res => {
-        tokenValido = { authorization:"Bearer " + res.body.token}
+  return request.delete(`/user/${user.email}`).then(() => {
+    return request.delete(`/user/${user2.email}`).then(() => {
+      return request.post('/user').send(user).then(res => {
+        idUsuarioValido = res.body.id;
+        return request.post('/user').send(user2).then(res => {
+          idUsuario2Valido = res.body.id;
+          token2Valido = { authorization:"Bearer " + res.body.token}
+          return request.post('/auth').send({email: user.email, password: user.password}).then(res => {
+            tokenValido = { authorization:"Bearer " + res.body.token}
+          })
+        })
       })
     })
   })

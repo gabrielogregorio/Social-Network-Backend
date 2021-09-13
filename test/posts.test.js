@@ -27,19 +27,28 @@ let user2 = {
 
 
 beforeAll(() => {
-  return request.post('/user').send(user).then(() => {
-    return request.post('/user').send(user2).then(() => {
-      return request.post('/auth').send({email: user.email, password: user.password}).then(res => {
-        tokenValido = { authorization:"Bearer " + res.body.token}
-        user.id = res.body.id;
-        return request.post('/auth').send({email: user2.email, password: user2.password}).then(res => {        
-          token2Valido = { authorization:"Bearer " + res.body.token}
-          user2.id = res.body.id;
+  return request.delete(`/image`).then(() => {
+    return request.delete(`/user/${user.email}`).then(() => {
+      return request.delete(`/user/${user2.email}`).then(() => {
+        return request.post('/user').send(user).then(() => {
+          return request.post('/user').send(user2).then(() => {
+            return request.post('/auth').send({email: user.email, password: user.password}).then(res => {
+              tokenValido = { authorization:"Bearer " + res.body.token}
+              user.id = res.body.id;
+              return request.post('/auth').send({email: user2.email, password: user2.password}).then(res => {        
+                token2Valido = { authorization:"Bearer " + res.body.token}
+                user2.id = res.body.id;
+              })
+            })
+          })
         })
       })
     })
   })
 })
+
+
+
 
 // Upload de imagens não está incluso nos testes
 afterAll(() => {

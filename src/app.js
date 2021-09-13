@@ -44,13 +44,21 @@ app.get('/', (req, res) => {
 })
 
 app.delete('/user/:email', async (req, res) => {
-  await User.deleteMany({email:req.params.email})
-  return res.sendStatus(200)
+  try {
+    await User.deleteMany({email:req.params.email})
+    return res.sendStatus(200)  
+  } catch(error) {
+    return res.sendStatus(200)
+  }
 })
 
 app.delete('/image', async (req, res) => {
-  await Post.deleteMany({test:true})
-  return res.sendStatus(200)
+  try {
+    await Post.deleteMany({test:true})
+    return res.sendStatus(200)
+  } catch(error) {
+    return res.sendStatus(200)
+}
 })
 
 module.exports = { app, mongoose };

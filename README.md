@@ -16,6 +16,21 @@ Configure o arquivo .env (crie ele com base no .env.example)
 | GCLOUD_STORAGE_BUCKET | Nome do bucket Google | myBucketName |
 | GCLOUD_PROJECT_ID | Projeto no Google Console | project-music-1234500 |
 
+## Ambiente de desenvolvimento vs Produção
+```
+Database
+# Ambiente local/desenvolvimento (net start mongodb)
+mongodb://localhost:27017/databaseName
+
+
+
+# Ambiente de produção
+mongodb+srv://<dbname>:<password>@cluster0.4oubv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+
+Endereço da API
+```
+
+
 ## Testes
 Para executar os testes automatizados é preciso ter o jest instalado de forma global. Após isso, execute o comando abaixo:
   
