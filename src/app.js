@@ -12,10 +12,6 @@ const PostLikeController = require('./controllers/PostLike');
 const PostShareController = require('./controllers/PostShare');
 const userAuth = require('../src/middlewares/userAuth');
 const cors = require('cors');
-const bcrypt = require('bcrypt')
-const logger = require('./logger');
-const test_user_name = process.env.TEST_USER_NAME
-const test_user2_name = process.env.TEST_USER2_NAME
 
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
@@ -30,59 +26,25 @@ app.use('/', PostShareController)
 app.use('/', PostLikeController)
  
 mongoose.set('useFindAndModify', false)
-mongoose.connect(process.env.DB_MONGO_URI,
-  {useNewUrlParser: true, useUnifiedTopology: true})
-    .then(() => {}).catch(error => console.log(error))
 
-app.use('/static', express.static('public'));
-
-
-app.get('/test', async (req, res) => {
-  return res.json({ola:'oi'})
-})
+mongoose.connect(
+  process.env.DB_MONGO_URI,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }).then(() => {}).catch(error => console.log(error))
 
 
 app.post('/validate', userAuth, (req, res) => {
   return res.sendStatus(200)
 })
 
-/* Rotas de desenvolvimento. É preciso aumentar a segurança delas e impedir acesso indevido, hoje
-elas estão soltinhas para qualquer um */
-app.post('/configure', async (req, res) => {
-  var message = req.body.extra;
-  if (message == undefined) {message = ''}
-  let salt = await bcrypt.genSalt(10);
-  let hash = await bcrypt.hash(test_user_name + message, salt)
-  let newUser = new User({name:test_user_name + message, email:test_user_name + message, password:hash, username:test_user_name + message})
-  await newUser.save()  
-
-  salt = await bcrypt.genSalt(10);
-  hash = await bcrypt.hash(test_user2_name + message, salt)
-  let newUser2 = new User({name:test_user2_name + message, email:test_user2_name + message, password:hash, username:test_user2_name + message})
-  await newUser2.save()  
-
-  res.json({email:test_user_name + message, id:newUser._id, email:test_user2_name + message, id2:newUser2._id,}); 
-})
-
 app.get('/', (req, res) => {
-  res.send('ola')
-})
-
-app.post('/endconfigure', async (req, res) => {
-  var message = req.body.extra;
-  if (message == undefined) {message = ''}
-  await User.deleteMany({email:test_user_name + message})
-  await User.deleteMany({email:test_user2_name + message})
-  return res.sendStatus(200)
+  res.send('API is Running')
 })
 
 app.delete('/user/:email', async (req, res) => {
   await User.deleteMany({email:req.params.email})
-  return res.sendStatus(200)
-})
-
-app.delete('/user2/:id', async (req, res) => {
-  await User.deleteMany({id:req.params.id})
   return res.sendStatus(200)
 })
 

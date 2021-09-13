@@ -36,53 +36,23 @@ let user2 = {
   password: '9d591724044b57d9b3607bbef285'
 }
 
-
 beforeAll(() => {
-  return request.post('/configure').then(() => {})
-})
-// Upload de imagens não está incluso nos testes
-
-
-afterAll(() => {
-  return request.delete(`/user/${user.email}`).then(res => {
-    return request.delete(`/user/${user2.email}`).then(res => {
-      return request.post('/endconfigure').then(() => {
-        return mongoose.connection.close();
+  return request.post('/user').send(user).then(res => {
+    idUsuarioValido = res.body.id;
+    return request.post('/user').send(user2).then(res => {
+      idUsuario2Valido = res.body.id;
+      token2Valido = { authorization:"Bearer " + res.body.token}
+      return request.post('/auth').send({email: user.email, password: user.password}).then(res => {
+        tokenValido = { authorization:"Bearer " + res.body.token}
       })
     })
   })
 })
 
-
-describe('Cadastro e login de usuários', () => {
-  test("Deve cadastrar um usuário com sucesso!", () => {
-    return request.post('/user').send(user).then(res => {
-      expect(res.statusCode).toEqual(200)
-      expect(res.body.email).toEqual(user.email)
-      expect(res.body.id).toBeDefined()
-      expect(res.body.token).toBeDefined()
-      idUsuarioValido = res.body.id;
-    })
-  })
-
-  test("Deve cadastrar um segundo usuário com sucesso!", () => {
-    return request.post('/user').send(user2).then(res => {
-      expect(res.statusCode).toEqual(200)
-      expect(res.body.email).toEqual(user2.email)
-      expect(res.body.id).toBeDefined()
-      expect(res.body.token).toBeDefined()
-      idUsuario2Valido = res.body.id;
-      token2Valido = { authorization:"Bearer " + res.body.token}
-    })
-  })
-
-  test("Deve acessar o sistema e receber um token válido para os outros testes", () => {
-    return request.post('/auth')
-      .send({email: user.email, password: user.password})
-      .then(res => {
-        expect(res.body.token).toBeDefined()
-        expect(res.statusCode).toEqual(200)
-        tokenValido = { authorization:"Bearer " + res.body.token}
+afterAll(() => {
+  return request.delete(`/user/${user.email}`).then(() => {
+    return request.delete(`/user/${user2.email}`).then(() => {
+      return mongoose.connection.close();
     })
   })
 })

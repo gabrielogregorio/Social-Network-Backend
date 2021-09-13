@@ -1,53 +1,44 @@
 let {app, mongoose} = require('../src/app');
 let supertest = require('supertest');
 const request = supertest(app);
-let token2ValidoMessage = ''
 let tokenValidoMessage = ''
-require('dotenv/config')
  
 let user = {
-  name: process.env.TEST_USER_NAME  + 'message',
-  email: process.env.TEST_USER_NAME  + 'message',
-  username: process.env.TEST_USER_NAME  + 'message',
-  password: process.env.TEST_USER_NAME  + 'message',
+  name: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
+  email: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
+  username: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
+  password: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
   idMessage: ''
 }
 
 let user2 = {
-  name: process.env.TEST_USER2_NAME  + 'message',
-  email: process.env.TEST_USER2_NAME  + 'message',
-  username: process.env.TEST_USER2_NAME  + 'message',
-  password: process.env.TEST_USER2_NAME + 'message',
+  name: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
+  email: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
+  username: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
+  password: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
   idMessage: ''
 }
 
 
 beforeAll(() => {
-  return request.post('/configure')
-  .send({extra: 'message'})
-    .then(() => {})
-})
-
-
-describe("Login no sistema", () => {
-  test("Deve acessar o sistema e fornecer um token válido para os outros testes", () => {
-    return request.post('/auth')
-      .send({email: user.email, password: user.password})
-      .then(res => {
+  return request.post('/user').send(user).then(res => {
+    return request.post('/user').send(user2).then(res => {
+      return request.post('/auth').send({email: user.email, password: user.password}).then(res => {
         tokenValidoMessage = { authorization:"Bearer " + res.body.token}
         user.idMessage = res.body.id;
-      }).catch(error => {
-        fail(error)
+        return request.post('/auth').send({email: user2.email, password: user2.password}).then(res => {
+            user2.idMessage = res.body.id;
+            return
+        })
       })
+    })
   })
-
-  test("Segundo usuário também deve logar e conseguir um token", () => {
-    return request.post('/auth')
-      .send({email: user2.email, password: user2.password})
-      .then(res => {
-        token2ValidoMessage = { authorization:"Bearer " + res.body.token}
-        user2.idMessage = res.body.id;
-      }).catch(error => {fail(error)})
+})
+afterAll(() => {
+  return request.delete(`/user/${user.email}`).then(() => {
+    return request.delete(`/user/${user2.email}`).then(() => {
+      return mongoose.connection.close();
+    })
   })
 })
 
@@ -99,7 +90,3 @@ describe('Envio de mensagens', () => {
 })
 
 
-beforeAll(async() => {
-  await request.post('/endconfigure').send({extra: 'message'})
-  return await request.post('/configure')
-})

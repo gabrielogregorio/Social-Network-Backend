@@ -10,8 +10,7 @@ afterAll(async () => {
 
 describe('Testes de aplicação', () => {
   it("A aplicação deve responder", () => {
-    return request.get('/test')
+    return request.get('/')
       .then(res => { expect(res.statusCode).toEqual(200) })
-      .catch(error => {fail(error)})
   })  
 })

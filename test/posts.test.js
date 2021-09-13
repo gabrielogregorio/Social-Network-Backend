@@ -1,7 +1,6 @@
 let {app, mongoose} = require('../src/app');
 let supertest = require('supertest');
 let request = supertest(app)
-let userAny = {name: 'userTest', email: 'user@teste.com', password: 'adminPassword'}
 let post = {body: 'Um body qualquer', test: true}
 let post2 = {body: 'post2', test: true}
 let idPostValido = "";
@@ -11,51 +10,45 @@ let token2Valido = { }
 require('dotenv/config')
  
 let user = {
-  name: process.env.TEST_USER_NAME,
-  email: process.env.TEST_USER_NAME,
-  username: process.env.TEST_USER_NAME,
-  password: process.env.TEST_USER_NAME,
+  name: 'testUserPost@testUserPost.com',
+  email: 'testUserPost@testUserPost.com',
+  username: 'testUserPost@testUserPost.com',
+  password: 'testUserPost@testUserPost.com',
   id: ''
 }
 
 let user2 = {
-  name: process.env.TEST_USER2_NAME,
-  email: process.env.TEST_USER2_NAME,
-  username: process.env.TEST_USER2_NAME,
-  password: process.env.TEST_USER2_NAME,
+  name: 'testUserPost2@testUserPost2.com',
+  email: 'testUserPost2@testUserPost2.com',
+  username: 'testUserPost2@testUserPost2.com',
+  password: 'testUserPost2@testUserPost2.com',
   id: ''
 }
 
-beforeAll(async() => {
-  return await request.post('/configure')
-})
 
-afterAll(async () => {
-  // Finalização da suite
-  await request.delete(`/user/${userAny.email}`)
-  await request.delete(`/image`)
-  await request.post('/endconfigure')
-  await mongoose.connection.close()
-})
-
-
-describe("Login no sistema", () => {
-  test("Deve acessar o sistema e fornecer um token válido para os outros testes", () => {
-    return request.post('/auth')
-      .send({email: user.email, password: user.password})
-      .then(res => {
+beforeAll(() => {
+  return request.post('/user').send(user).then(() => {
+    return request.post('/user').send(user2).then(() => {
+      return request.post('/auth').send({email: user.email, password: user.password}).then(res => {
         tokenValido = { authorization:"Bearer " + res.body.token}
         user.id = res.body.id;
+        return request.post('/auth').send({email: user2.email, password: user2.password}).then(res => {        
+          token2Valido = { authorization:"Bearer " + res.body.token}
+          user2.id = res.body.id;
+        })
       })
+    })
   })
+})
 
-  test("Segundo usuário também deve logar e conseguir um token", () => {
-    return request.post('/auth')
-      .send({email: user2.email, password: user2.password})
-      .then(res => {
-        token2Valido = { authorization:"Bearer " + res.body.token}
-        user2.id = res.body.id;
+// Upload de imagens não está incluso nos testes
+afterAll(() => {
+  return request.delete(`/image`).then(() => {
+    return request.delete(`/user/${user.email}`).then(() => {
+      return request.delete(`/user/${user2.email}`).then(() => {
+        return mongoose.connection.close();
       })
+    })
   })
 })
 
@@ -296,7 +289,6 @@ describe('Gerenciamento de posts', () => {
       .then(res => {
         expect(res.statusCode).toEqual(200)
         expect(res.body[0].body).toBeDefined()
-
     })
   })
 
