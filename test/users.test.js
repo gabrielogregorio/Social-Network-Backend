@@ -55,9 +55,9 @@ beforeAll(() => {
 
 afterAll(() => {
   return request.delete(`/user/${user.email}`).then(() => {
-    return request.delete(`/user/${user2.email}`).then(() => {
+    //return request.delete(`/user/${user2.email}`).then(() => {
       return mongoose.connection.close();
-    })
+    //})
   })
 })
 
@@ -289,4 +289,12 @@ describe("Testes gerais", () => {
       expect(res.body.length).toBeGreaterThan(0)
     })
   })
+
+  test("Deve deletar um usuário", () => {
+    return request.delete('/user')
+    .set(token2Valido)
+    .then(res => {
+      expect(res.statusCode).toEqual(200)
+    })
+  })  
 })

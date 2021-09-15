@@ -6,6 +6,10 @@ class ItemBioService {
     await item.save()
     return item;
   }
+
+  async DeleteAllItemBios(user) {
+    return await ItemBio.deleteMany({user});
+  }
 }
 
 module.exports = new ItemBioService()

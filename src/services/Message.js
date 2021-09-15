@@ -9,6 +9,10 @@ class MessageService {
     return newMessage;
   }
 
+  async DeleteAllMessages(userId) {
+    return await Message.deleteMany({from:userId})
+  }
+
   async FindAllMessages(id) {
     return await Message.find({$or: [{to:id}, {from: id}]}).populate('from to')
   }
@@ -22,7 +26,6 @@ class MessageService {
 
 
   async FindAllUsersOnePersonCanSendMessage(id) {
-
     let usersFolling = await UserService.findFollowingUsers(id, true)   
 
     // Obter todas as mensagens que foram para o usuário ou que ele enviou

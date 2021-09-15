@@ -29,8 +29,12 @@ class PostService {
     return postFactories;
   }
 
+  async DeleteAllPostByUser(user) {
+    return await Post.deleteMany({user})
+  }
+
   async FindPostsByUser(user) {
-    return await Post.find({user}).sort({'_id': 'desc'}).populate('user comments likes');
+    return await Post.find({user}).sort({'_id': 'desc'}).populate('user comments likes')
   }
 
   async findFollowingPosts(id, includedUser=false) {

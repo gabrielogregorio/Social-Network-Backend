@@ -16,6 +16,13 @@ const { bucket } = require('./bucket')
 const { uuid } = require('uuidv4');
 
 const Multer = require('multer');
+const { FindPostsByUser, DeleteAllPostByUser } = require('../services/Post');
+const { DeleteUserById } = require('../services/User');
+const { DeleteAllSave } = require('../services/SavePosts');
+const { DeleteAllLikes } = require('../services/Like');
+const { DeleteAllComments } = require('../services/Comment');
+const { DeleteAllMessages } = require('../services/Message');
+const { DeleteAllItemBios } = require('../services/ItemBio');
 
 const multer = Multer({
   storage: Multer.memoryStorage(),
@@ -89,6 +96,21 @@ router.post('/user',
     res.sendStatus(500);
   }
 })
+
+
+/* Cria um usuário */
+router.delete('/user', userAuth, async (req, res) => {
+  let idUser = req.data.id
+  await DeleteAllPostByUser(idUser)
+  await DeleteUserById(idUser)
+  await DeleteAllSave(idUser)
+  await DeleteAllLikes(idUser)
+  await DeleteAllComments(idUser)
+  await DeleteAllMessages(idUser)
+  await DeleteAllItemBios(idUser)
+  return res.sendStatus(200)
+})
+ 
 
 
 router.post('/auth', async (req, res) => {

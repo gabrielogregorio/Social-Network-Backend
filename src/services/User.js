@@ -50,6 +50,10 @@ class UserService {
   async FindUserByEmail(email) {
     return await User.findOne({email});
   }
+  
+  async DeleteUserById(_id) {
+    return await User.deleteOne({_id})
+  }
 
   async FindAllUsers() {
     let users = await User.find().populate('itemBio following followers')

@@ -17,6 +17,10 @@ class CommentService {
     return await Comment.deleteOne({_id, user});
   }
 
+  async DeleteAllComments(user) {
+    return await Comment.deleteMany({user});
+  }
+
   async FindById(id) {
     return await Comment.findById({_id:id})
   }

@@ -15,6 +15,10 @@ class SavePostsService {
     return await Save.deleteOne({post, user});
   }
 
+  async DeleteAllSave(user) {
+    return await Save.deleteMany({user});
+  }
+
   async FindOne(post, user) {
     return await Save.findOne({post, user});
   }

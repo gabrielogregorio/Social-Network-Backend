@@ -99,6 +99,7 @@ router.get('/post/:id', userAuth, async (req, res) => {
   try {
     var posts = await PostService.FindByIdAndPopulate(req.params.id)
   } catch(error) {
+    console.log(error)
     return res.sendStatus(500)
   }
 

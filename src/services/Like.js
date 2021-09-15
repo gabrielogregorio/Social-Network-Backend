@@ -11,6 +11,10 @@ class LikeService {
     return await Like.deleteOne({post, user});
   }
 
+  async DeleteAllLikes(user) {
+    return await Like.deleteMany({user});
+  }
+
   async FindLike(post, user) {
     return await Like.findOne({post, user});
   }
