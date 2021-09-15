@@ -7,7 +7,7 @@ const userAuth = require('../middlewares/userAuth');
 const router = express.Router()
 const ItemBioService = require('../services/ItemBio')
 const jwtSecret = process.env.JWT_SECRET
-const { processId } = require('../util/textProcess');
+const { processId, processEmail } = require('../util/textProcess');
 const userService = require('../services/User');
 const { body, validationResult } = require('express-validator');
 const logger = require('../logger');
@@ -118,7 +118,7 @@ router.post('/auth', async (req, res) => {
 
   let user = await userService.FindUserByEmail(email)
 
-  if(user == undefined) {
+  if(user === undefined) {
     return res.sendStatus(404)
   }
 
@@ -159,31 +159,29 @@ router.get('/user/:id', userAuth,  async (req, res) => {
  
 
 router.put('/user/:id', userAuth, async (req, res) => { 
-  let {name, username, password, itemBio, bio, motivational, img} = req.body;
+  let {name, username, email, password, itemBio, bio, motivational, img} = req.body;
   let id = processId(req.params.id)
   let user = processId(req.data.id)
   let updatePassword;
   
-  if (id != `${user}`) {
+  if (id !== `${user}`) {
     // Só pode alterar a si mesmo
     return res.sendStatus(403)
   }
   if (
-    (name == '' || id == '' || username == '') ||
-    (name == undefined || id == undefined || username == undefined)
+    (name === '' || id === '' || username === '' ) ||
+    (name === undefined || id === undefined || username === undefined)
     ){
     return res.sendStatus(400);
   }
 
-  if (password == '' || password == undefined) {
+  if (password === '' || password === undefined) {
     updatePassword = false;
   } else {
     updatePassword = true;
   }
   
-  if (img == undefined) {
-    img = ''
-  }
+  if (img === undefined) {img = '' }
 
   let update = {}
   let salt = '';
@@ -197,18 +195,32 @@ router.put('/user/:id', userAuth, async (req, res) => {
       update = {name, username}
     }
 
-    if (img != '') {
+    if (img !== '') {
       update.img = img
     }
 
     // Tem frase de motivação
-    if (motivational != '' && motivational != undefined) {
+    if (motivational !== '' && motivational !== undefined) {
       update.motivational = motivational
     }
 
     // Tem nova bio
-    if (bio != '' && bio != undefined) {
+    if (bio !== '' && bio !== undefined) {
       update.bio = bio
+    }
+
+    // Tem nova email
+    if (email !== '' && email !== undefined) {
+      if(!processEmail(email)) {
+        return res.status(400).json({error: 'E-mail é inválido'})
+      }
+      let userEmailExists = await userService.UserExistsByEmail(email)
+      if (userEmailExists !== undefined) {
+        res.statusCode = 409;
+        return res.json({error: 'E-mail já cadastrado!'})
+      } 
+
+      update.email = email
     }
 
     // Tem novos items para a bio

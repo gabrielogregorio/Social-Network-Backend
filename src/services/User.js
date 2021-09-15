@@ -44,11 +44,20 @@ class UserService {
   }
 
   async UserExistsByEmail(email) {
-    return await User.findOne({email})
+    let userExists = await User.findOne({email})
+    if(userExists === null) {
+      return undefined
+    }
+
+    return userExists
   }
 
   async FindUserByEmail(email) {
-    return await User.findOne({email});
+    let userExists = await User.findOne({email});
+    if(userExists === null ){
+      return undefined
+    }
+    return userExists
   }
   
   async DeleteUserById(_id) {
