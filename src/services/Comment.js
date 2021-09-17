@@ -26,11 +26,13 @@ class CommentService {
   }
 
   async FindByPosts(post) {
-    return await Comment.find({post, base:true})
+    let comments = await Comment.find({post, base:true})
+    return comments
   }
 
   async FindOneAndUpdate(_id, user, update) {
-    return await Comment.findOneAndUpdate({_id, user}, {$set:update})
+    let comment = await Comment.findOneAndUpdate({_id, user}, {$set:update})
+    return comment
   }
 }
 
