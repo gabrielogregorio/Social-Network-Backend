@@ -62,7 +62,7 @@ router.post('/post', userAuth, async(req, res) => {
   }
 
   try {
-    var newPostSave = await PostService.Create({body, user, test, img}) 
+    var newPostSave = await PostService.Create({body, user, test, img, edited:false}) 
     res.json({_id: newPostSave._id, user})
   } catch(error) {
 
@@ -134,6 +134,8 @@ router.put('/post/:id', userAuth,  async (req, res) => {
   if (img != '') {
     upload.img = img
   }
+
+  upload.edited = true
  
   try {
     await PostService.FindOneAndUpdate(id, user, upload)

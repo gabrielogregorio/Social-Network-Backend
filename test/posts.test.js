@@ -160,6 +160,7 @@ describe('Gerenciamento de posts', () => {
       .then(res => {
         expect(res.statusCode).toEqual(200)
         expect(res.body.body).toEqual('test1z')
+        expect(res.body.edited).toEqual(true)
     })
   })
 
