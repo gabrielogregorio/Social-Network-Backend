@@ -6,6 +6,7 @@ class DataPosts {
       _id: post.id,
       title: post.title,
       body: post.body,
+      edited: post.edited,
       img: post.img,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
