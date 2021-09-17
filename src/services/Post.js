@@ -34,7 +34,8 @@ class PostService {
   }
 
   async FindPostsByUser(user) {
-    return await Post.find({user}).sort({'_id': 'desc'}).populate('user comments likes')
+    let posts = await Post.find({user}).sort({'_id': 'desc'}).populate('user comments likes')
+    return posts
   }
 
   async findFollowingPosts(id, includedUser=false) {

@@ -7,6 +7,8 @@ class DataPosts {
       title: post.title,
       body: post.body,
       img: post.img,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
       comments: post.comments,
       user: "",
       likes: post.likes == undefined ? 0 : post.likes.length,
