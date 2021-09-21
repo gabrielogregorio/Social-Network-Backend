@@ -6,6 +6,7 @@ let postSchema = new mongoose.Schema({
   test: Boolean,
   img: String,
   sharePost: this,
+  edited: Boolean,
   thisReferencesShared: [this],
   user: {
     type: mongoose.Schema.Types.ObjectId,
