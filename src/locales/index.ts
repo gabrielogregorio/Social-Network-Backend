@@ -3,11 +3,9 @@ const messages = {
     invalid: {
       email: 'Invalid email',
     },
-
     email: {
       registered: 'E-mail already registered!',
     },
-
     no: {
       file: {
         uploaded: 'No file uploaded.',

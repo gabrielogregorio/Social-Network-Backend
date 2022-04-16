@@ -220,7 +220,7 @@ postController.delete('/post/:id', userAuth, async (req: Request, res: Response)
   try {
     const resDelete = await PostService.DeleteById(id);
     if (resDelete.rowsAffected === 1) {
-      return res.sendStatus(200);
+      return res.sendStatus(STATUS_CODE.SUCCESS);
     }
     return res.sendStatus(STATUS_CODE.NOT_FOUND);
   } catch (error) {
