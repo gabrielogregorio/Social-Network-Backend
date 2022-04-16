@@ -5,6 +5,7 @@ export interface ItemBioSchema {
   text: string;
   typeItem: string;
   user: string;
+  save?: Function;
 }
 
 const itemSchema = new mongoose.Schema<ItemBioSchema>({

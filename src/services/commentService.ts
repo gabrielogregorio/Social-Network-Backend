@@ -1,16 +1,8 @@
 import Comment from '@/models/Comment';
-import logger from '../logger';
 
 export default class CommentService {
   static async Create({ post, user, text, replie, base = false }) {
-    logger.info('Criação de comentário');
-
-    const create = { post, user, text, base };
-    if (replie !== undefined) {
-      // @ts-ignore
-      create.replie = replie;
-    }
-
+    const create = { post, user, text, base, replie };
     const newComment = new Comment(create);
     await newComment.save();
     return newComment;

@@ -13,19 +13,18 @@ const userAuth = (req, res, next) => {
   const auth = bearer[1];
 
   if (auth === undefined) {
-    res.sendStatus(403);
-  } else {
-    try {
-      const data = jwt.verify(auth, process.env.JWT_SECRET);
-      req.data = data;
-      if (data.email === undefined) {
-        res.sendStatus(403);
-      } else {
-        next();
-      }
-    } catch (error) {
-      res.sendStatus(403);
+    return res.sendStatus(403);
+  }
+
+  try {
+    const data = jwt.verify(auth, process.env.JWT_SECRET);
+    req.data = data;
+    if (data.email === undefined) {
+      return res.sendStatus(403);
     }
+    return next();
+  } catch (error) {
+    return res.sendStatus(403);
   }
 };
 

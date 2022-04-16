@@ -13,6 +13,7 @@ export interface IPost {
   likes: Types.ObjectId[];
   saves: string[];
   comments: string[];
+  save?: Function;
 }
 
 const postSchema = new mongoose.Schema<IPost>(
@@ -21,9 +22,9 @@ const postSchema = new mongoose.Schema<IPost>(
     body: String,
     test: Boolean,
     img: String,
-    sharePost: this,
+    sharePost: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
     edited: Boolean,
-    thisReferencesShared: [this],
+    thisReferencesShared: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

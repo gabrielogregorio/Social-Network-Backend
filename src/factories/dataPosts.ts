@@ -1,22 +1,39 @@
-/* eslint-disable no-underscore-dangle */
-import DataUsers from './dataUsers';
+import { IComment } from '@/models/Comment';
+import { IPost } from '@/models/Post';
+import DataUsers, { dataUsersType } from './dataUsers';
+
+export type dataPostsType = {
+  _id: string;
+  title: string;
+  body: string;
+  edited: boolean;
+  img: string;
+  createdAt: Date;
+  updatedAt: Date;
+  comments: string[] | IComment[];
+  user: dataUsersType | {};
+  likes: number;
+  likedByUser: boolean;
+  savedByUser: boolean;
+  sharePost: IPost;
+};
 
 export default class DataPosts {
-  static Build(post, userId, idsSaves = []) {
-    const newPost: any = {
-      _id: post.id,
-      title: post.title,
-      body: post.body,
-      edited: post.edited,
-      img: post.img,
-      createdAt: post.createdAt,
-      updatedAt: post.updatedAt,
-      comments: post.comments,
+  static Build(post: any, userId: string, idsSaves: string[] = []): dataPostsType {
+    const newPost: dataPostsType = {
+      _id: post?.id,
+      title: post?.title,
+      body: post?.body,
+      edited: post?.edited,
+      img: post?.img,
+      createdAt: post?.createdAt,
+      updatedAt: post?.updatedAt,
+      comments: post?.comments,
       user: '',
-      likes: post.likes === undefined ? 0 : post.likes.length,
+      likes: post?.likes === undefined ? 0 : post?.likes.length,
       likedByUser: false,
       savedByUser: false,
-      sharePost: post.sharePost === undefined ? undefined : post.sharePost,
+      sharePost: post?.sharePost ? post?.sharePost : null,
     };
 
     if (post.user !== undefined) {
@@ -26,8 +43,8 @@ export default class DataPosts {
     }
 
     if (idsSaves !== undefined) {
-      idsSaves.forEach((idsave) => {
-        if (`${post._id}` === `${idsave}`) {
+      idsSaves.forEach((idSave) => {
+        if (post._id === idSave) {
           newPost.savedByUser = true;
         }
       });
@@ -38,6 +55,7 @@ export default class DataPosts {
         newPost.likedByUser = true;
       }
     });
+
     return newPost;
   }
 }

@@ -1,4 +1,4 @@
-/* eslint-disable no-underscore-dangle */
+import STATUS_CODE from '@/handlers/index';
 import supertest from 'supertest';
 import { app, mongoose } from '../app';
 
@@ -54,47 +54,47 @@ afterAll(async () => {
 describe('Gerenciamento de posts', () => {
   test('Deve cadastrar um post', async () => {
     const response = await request.post('/post').send(post).set(tokenValido);
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     idPostValido = response.body._id;
   });
 
   test('Usuário 2 deve cadastrar um post', async () => {
     const response = await request.post('/post').send(post2).set(token2Valido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
   });
 
   test('Deve retornar apenas o post do usuário, pois o usuário ainda não segue ninguem', async () => {
     const response = await request.get('/posts').set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body[0].body).toEqual(post.body);
   });
 
   test('Para ver os posts, um usuario deve seguir o outro', async () => {
     const response = await request.post(`/user/follow/${user2.id}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.followed).toEqual(true);
   });
 
   test('Deve retornar uma lista com todos os posts e suas imagens', async () => {
     const response = await request.get('/posts').set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body[0].body).toEqual(post2.body);
   });
 
   test('Deve compartilhar um post', async () => {
     const response = await request.post(`/post/share/${idPostValido}`).send(post2).set(token2Valido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
   });
 
   test('Deve retornar um post', async () => {
     const response = await request.get(`/post/${idPostValido}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body[0].user.name).toBeDefined();
     expect(response.body[0].body).toBeDefined();
   });
@@ -102,79 +102,79 @@ describe('Gerenciamento de posts', () => {
   test('Deve retornar erro 500 para um parametro invalido', async () => {
     const response = await request.get('/post/aaa').set(tokenValido);
 
-    expect(response.statusCode).toEqual(500);
+    expect(response.statusCode).toEqual(STATUS_CODE.ERROR_IN_SERVER);
   });
 
   test('Deve retornar erro 404 ao não encontrar o post', async () => {
     const response = await request.get('/post/111111111111111111111111').set(tokenValido);
 
-    expect(response.statusCode).toEqual(404);
+    expect(response.statusCode).toEqual(STATUS_CODE.NOT_FOUND);
   });
 
   test('Deve retornar erro 400 ao tentar editar um post passando parametros incorretos', async () => {
     const response = await request.put(`/post/${idPostValido}`, {}).set(tokenValido).send({ body: '' });
 
-    expect(response.statusCode).toEqual(400);
+    expect(response.statusCode).toEqual(STATUS_CODE.INVALID_PARAMETERS);
   });
 
   test('Deve permitir a edição de um post!', async () => {
     const response = await request.put(`/post/${idPostValido}`).set(tokenValido).send({ body: 'test1z' });
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.body).toEqual('test1z');
     expect(response.body.edited).toEqual(true);
   });
 
   test('Não deve permitir a edição de um post por um usuário que não o postou', async () => {
     const response = await request.put(`/post/61157031ccc66931d08ce13b`).set(tokenValido).send({ body: 'test1z' });
-    expect(response.statusCode).toEqual(403);
+    expect(response.statusCode).toEqual(STATUS_CODE.NOT_AUTHORIZED);
   });
 
   test('Deve enviar um like', async () => {
     const response = await request.post(`/post/like/${idPostValido}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.includeLike).toEqual(true);
   });
 
   test('Deve desfazer um like', async () => {
     const response = await request.post(`/post/like/${idPostValido}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.includeLike).toEqual(false);
   });
 
   test('Deve salvar um post', async () => {
     const response = await request.post(`/post/save/${idPostValido}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.includeSave).toEqual(true);
   });
 
   test('Deve retornar o post salvo', async () => {
     const response = await request.get(`/post/list/save/`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body[0]._id).toEqual(idPostValido);
   });
 
   test('Deve remover dos salvos um post', async () => {
     const response = await request.post(`/post/save/${idPostValido}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.includeSave).toEqual(false);
   });
 
   test('Deve retornar 500 quando um post inválido for enviado', async () => {
     const response = await request.post(`/post/like/11111111`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(500);
+    expect(response.statusCode).toEqual(STATUS_CODE.ERROR_IN_SERVER);
   });
 
   test('Deve retornar 400 com um comentário sem texto', async () => {
     const response = await request.post(`/post/comment/${idPostValido}`).send({ text: '' }).set(tokenValido);
 
-    expect(response.statusCode).toEqual(400);
+    expect(response.statusCode).toEqual(STATUS_CODE.INVALID_PARAMETERS);
   });
 
   test('Deve retornar 500 quando um comentário inválido for enviado', async () => {
@@ -183,7 +183,7 @@ describe('Gerenciamento de posts', () => {
       .set(tokenValido)
       .send({ text: 'Isso é um comentario' });
 
-    expect(response.statusCode).toEqual(500);
+    expect(response.statusCode).toEqual(STATUS_CODE.ERROR_IN_SERVER);
   });
 
   test('Deve enviar um comentario novo', async () => {
@@ -193,7 +193,7 @@ describe('Gerenciamento de posts', () => {
       .send({ text: 'Isso é um comentario' });
 
     idComentarioValido = response.body.id;
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.id).toBeDefined();
   });
 
@@ -204,7 +204,7 @@ describe('Gerenciamento de posts', () => {
       .send({ text: 'Isso é uma resposta', replie: idComentarioValido });
 
     idComentarioValido = response.body.id;
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body.id).toBeDefined();
     expect(response.body.replie).toBeDefined();
   });
@@ -215,7 +215,7 @@ describe('Gerenciamento de posts', () => {
       .set(tokenValido)
       .send({ text: 'Novo texto do comentário' });
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
   });
 
   test('Deve retornar 404 para um comentário não encontrado', async () => {
@@ -224,37 +224,37 @@ describe('Gerenciamento de posts', () => {
       .set(tokenValido)
       .send({ text: 'Novo texto do comentário' });
 
-    expect(response.statusCode).toEqual(404);
+    expect(response.statusCode).toEqual(STATUS_CODE.NOT_FOUND);
   });
 
   test('Deve desfazer um comentário', async () => {
     const response = await request.delete(`/post/comment/${idComentarioValido}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
   });
 
   test('Obter os posts de si mesmo', async () => {
     const response = await request.get(`/posts/user/${user.id}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body[0].body).toBeDefined();
   });
 
   test('Deve Deletar um post!', async () => {
     const response = await request.delete(`/post/${idPostValido}`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
   });
 
   test('Deve retornar 404 ao tentar deletar um post que não existe', async () => {
     const response = await request.delete(`/post/111111111111111111111111`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(404);
+    expect(response.statusCode).toEqual(STATUS_CODE.NOT_FOUND);
   });
 
   test('Deve retornar 500 ao passar um parametro invalido', async () => {
     const response = await request.delete(`/post/111`).set(tokenValido);
 
-    expect(response.statusCode).toEqual(500);
+    expect(response.statusCode).toEqual(STATUS_CODE.ERROR_IN_SERVER);
   });
 });

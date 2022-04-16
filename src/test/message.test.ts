@@ -1,4 +1,4 @@
-/* eslint-disable no-underscore-dangle */
+import STATUS_CODE from '@/handlers/index';
 import supertest from 'supertest';
 import { app, mongoose } from '../app';
 
@@ -68,7 +68,7 @@ describe('Envio de mensagens', () => {
       .send({ to: user2.idMessage, message: 'Olá mi amigo!', test: 'true' })
       .set(tokenValidoMessage)
       .then((res) => {
-        expect(res.statusCode).toEqual(200);
+        expect(res.statusCode).toEqual(STATUS_CODE.SUCCESS);
       }));
 
   test('Usuário 1 deve obter todas as mensagens enviadas', () =>
@@ -76,7 +76,7 @@ describe('Envio de mensagens', () => {
       .get('/messages')
       .set(tokenValidoMessage)
       .then((res) => {
-        expect(res.statusCode).toEqual(200);
+        expect(res.statusCode).toEqual(STATUS_CODE.SUCCESS);
         expect(res.body[0].message).toEqual('Olá mi amigo!');
         expect(res.body[0].to._id).toEqual(user2.idMessage);
       }));
@@ -86,13 +86,13 @@ describe('Envio de mensagens', () => {
       .get(`/message/${user2.idMessage}`)
       .set(tokenValidoMessage)
       .then((res) => {
-        expect(res.statusCode).toEqual(200);
+        expect(res.statusCode).toEqual(STATUS_CODE.SUCCESS);
       }));
 
   test('Usuário 1 deve obter todas as pessoas que interagiu', async () => {
     const response = await request.get('/messages/users').set(tokenValidoMessage);
 
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
     expect(response.body[0]._id).toEqual(user2.idMessage);
   });
 });

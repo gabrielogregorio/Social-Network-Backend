@@ -13,7 +13,7 @@ export interface IComment {
 const commentSchema = new mongoose.Schema(
   {
     text: { type: String },
-    replie: this,
+    replie: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
     replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     base: { type: Boolean, default: false },
     post: {

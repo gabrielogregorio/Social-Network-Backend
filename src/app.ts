@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import dotenv from 'dotenv';
 import express, { Application, Request, Response } from 'express';
 import http from 'http';
@@ -15,6 +14,8 @@ import MessageController from '@/controllers/MessageController';
 import PostLikeController from '@/controllers/PostLikeController';
 import PostShareController from '@/controllers/PostShareController';
 import userAuth from '@/middlewares/userAuth';
+import { MiddlewareRequest } from 'src/interfaces/extends';
+import STATUS_CODE from '@/handlers/index';
 
 const app: Application = express();
 
@@ -62,13 +63,12 @@ websocketServer.on('connection', (webs) => {
   return webSocketClient;
 });
 
-app.post('/connectSocket', userAuth, (req: Request, res: Response): Response => {
-  // @ts-ignore
+app.post('/connectSocket', userAuth, (req: MiddlewareRequest, res: Response): Response => {
   const idUser = req.data.id;
   const { socketUuid } = req.body;
 
   sockets[socketUuid].user = idUser;
-  return res.sendStatus(200);
+  return res.sendStatus(STATUS_CODE.SUCCESS);
 });
 
 app.post('/sendMessageUser', userAuth, (req: Request, res: Response): Response => {
@@ -88,28 +88,28 @@ app.post('/sendMessageUser', userAuth, (req: Request, res: Response): Response =
     }
   });
 
-  return res.sendStatus(200);
+  return res.sendStatus(STATUS_CODE.SUCCESS);
 });
 
-app.post('/validate', userAuth, (req: Request, res: Response): Response => res.sendStatus(200));
+app.post('/validate', userAuth, (req: Request, res: Response): Response => res.sendStatus(STATUS_CODE.SUCCESS));
 
 app.get('/', (_req: Request, res: Response): Response => res.json({ status: 'API is Running' }));
 
 app.delete('/user/:email', async (req: Request, res: Response): Promise<Response> => {
   try {
     await User.deleteMany({ email: req.params.email });
-    return res.sendStatus(200);
+    return res.sendStatus(STATUS_CODE.SUCCESS);
   } catch (error) {
-    return res.sendStatus(200);
+    return res.sendStatus(STATUS_CODE.SUCCESS);
   }
 });
 
 app.delete('/image', async (req: Request, res: Response): Promise<Response> => {
   try {
     await Post.deleteMany({ test: true });
-    return res.sendStatus(200);
+    return res.sendStatus(STATUS_CODE.SUCCESS);
   } catch (error) {
-    return res.sendStatus(200);
+    return res.sendStatus(STATUS_CODE.SUCCESS);
   }
 });
 

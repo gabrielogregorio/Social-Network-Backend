@@ -1,18 +1,27 @@
 import User from '@/models/User';
 import dataUser from '@/factories/dataUsers';
+import { IUpdateUser } from 'src/interfaces/edit';
+
+export interface usersServiceCreateType {
+  name: string;
+  email: string;
+  username: string;
+  hash: string;
+  img: string;
+}
 
 export default class UserService {
-  static async Create({ name, email, username, hash, img }): Promise<any> {
+  static async Create({ name, email, username, hash, img }: usersServiceCreateType): Promise<any> {
     const newUser = new User({ name, email, username, password: hash, img });
     await newUser.save();
     return newUser;
   }
 
-  static async FindByListIds(ids): Promise<any> {
+  static async FindByListIds(ids: string[]): Promise<any> {
     return User.find({ _id: { $in: ids } });
   }
 
-  static async FindById(id): Promise<any> {
+  static async FindById(id: string): Promise<any> {
     const user = await User.findById({ _id: id }).populate('itemBio following followers');
     if (user) {
       return dataUser.Build(user);
@@ -20,29 +29,29 @@ export default class UserService {
     return user;
   }
 
-  static async FindByIdRaw(id): Promise<any> {
+  static async FindByIdRaw(id: string): Promise<any> {
     return User.findById({ _id: id });
   }
 
-  static async FindByIdNotPopulate(id): Promise<any> {
+  static async FindByIdNotPopulate(id: string): Promise<any> {
     return User.findById({ _id: id });
   }
 
-  static async FindByIdAndUpdate(id, update): Promise<any> {
+  static async FindByIdAndUpdate(id: string, update: IUpdateUser): Promise<any> {
     return User.findOneAndUpdate({ _id: id }, { $set: update });
   }
 
-  static async findFollowingUsers(id, includedUser = false): Promise<any> {
+  static async findFollowingUsers(id: string, includedUser: boolean = false): Promise<any> {
     const userItem = await this.FindById(id);
 
-    const ids = dataUser.Build(userItem).followingIds;
+    const ids: string[] = dataUser.Build(userItem).followingIds;
     if (includedUser) {
       ids.push(id);
     }
     return this.FindByListIds(ids);
   }
 
-  static async UserExistsByEmail(email): Promise<any> {
+  static async UserExistsByEmail(email: string): Promise<any> {
     const userExists = await User.findOne({ email });
     if (userExists === null) {
       return undefined;
@@ -51,7 +60,7 @@ export default class UserService {
     return userExists;
   }
 
-  static async FindUserByEmail(email): Promise<any> {
+  static async FindUserByEmail(email: string): Promise<any> {
     const userExists = await User.findOne({ email });
     if (userExists === null) {
       return undefined;
@@ -59,7 +68,7 @@ export default class UserService {
     return userExists;
   }
 
-  static async DeleteUserById(_id): Promise<any> {
+  static async DeleteUserById(_id: string): Promise<any> {
     return User.deleteOne({ _id });
   }
 

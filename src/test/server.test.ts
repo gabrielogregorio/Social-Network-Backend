@@ -1,3 +1,4 @@
+import STATUS_CODE from '@/handlers/index';
 import supertest from 'supertest';
 import { app, mongoose } from '../app';
 
@@ -10,6 +11,6 @@ afterAll(async () => {
 describe('Testes de aplicação', () => {
   it('A aplicação deve responder', async () => {
     const response = await request.get('/');
-    expect(response.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(STATUS_CODE.SUCCESS);
   });
 });

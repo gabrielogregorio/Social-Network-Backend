@@ -27,8 +27,8 @@ const userSchema = new mongoose.Schema<IUser>({
   motivational: String,
   itemBio: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ItemBio' }],
   posts: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
-  following: [this],
-  followers: [this],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,

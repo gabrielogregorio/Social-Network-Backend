@@ -1,30 +1,30 @@
-/* eslint-disable no-underscore-dangle */
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import dotenv from 'dotenv';
-import userAuth from '../middlewares/userAuth';
-import PostService from '../services/postService';
-import { processId } from '../util/textProcess';
+import { MiddlewareRequest } from 'src/interfaces/extends';
+import { IPost } from '@/models/Post';
+import userAuth from '@/middlewares/userAuth';
+import PostService from '@/services/postService';
+import { processId } from '@/util/textProcess';
 
 dotenv.config();
 
 const postShareController = express.Router();
 
-postShareController.post('/post/share/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
-  // @ts-ignore
-  const user = processId(req.data.id);
-  const idPost = processId(req.params.id);
+postShareController.post(
+  '/post/share/:id',
+  userAuth,
+  async (req: MiddlewareRequest, res: Response): Promise<Response> => {
+    const user: string = processId(req.data.id);
+    const idPost: string = processId(req.params.id);
 
-  // Cria o novo post referenciando o post que será compartilhado
-  // @ts-ignore
-  const newPostSave = PostService.Create({ user, sharePost: idPost });
+    const newPostSave: IPost = await PostService.Create({ user, sharePost: idPost, body: '', test: false, img: '' });
 
-  const sharedPost = await PostService.FindById(idPost);
-  // @ts-ignore
-  sharedPost.thisReferencesShared.push(newPostSave._id);
-  // @ts-ignore
-  await sharedPost.save();
-  // @ts-ignore
-  return res.json({ _id: newPostSave._id, user, shared: idPost });
-});
+    const sharedPost: IPost = await PostService.FindById(idPost);
+    sharedPost.thisReferencesShared.push(newPostSave);
+    await sharedPost.save();
+
+    return res.json({ _id: newPostSave._id, user, shared: idPost });
+  },
+);
 
 export default postShareController;

@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import dotenv from 'dotenv';
 import express, { NextFunction, Request, Response, Router } from 'express';
 import bcrypt from 'bcrypt';
@@ -17,8 +16,10 @@ import likeService from '@/services/likeService';
 import MessageService from '@/services/messageService';
 import ItemBioService from '@/services/itemBioService';
 import { ItemBioSchema } from '@/models/ItemBio';
-import { bucket } from '../util/bucket';
-import logger from '../logger';
+import { bucket } from '@/util/bucket';
+import { MiddlewareRequest } from '@/interfaces/extends';
+import messages from '@/locales/index';
+import STATUS_CODE from '@/handlers/index';
 
 const userController: Router = express.Router();
 
@@ -29,7 +30,7 @@ dotenv.config();
 const multer = Multer({
   storage: Multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // no larger than 5mb, you can change as needed.
+    fileSize: 5 * 1024 * 1024,
   },
 });
 
@@ -37,13 +38,11 @@ userController.post(
   '/userLoadFile',
   userAuth,
   multer.single('image'),
-  async (req: Request, res: Response, next: NextFunction) => {
-    logger.debug('Load image user');
-    // @ts-ignore
+  async (req: MiddlewareRequest, res: Response, next: NextFunction) => {
     const user = processId(req.data.id);
 
     if (!req.file || user === undefined) {
-      res.status(400).send('No file uploaded.');
+      res.status(STATUS_CODE.INVALID_PARAMETERS).send(messages.error.no.file.uploaded);
       return;
     }
     const blob = bucket.file(`${Date.now().toString()}-${uuid()}`);
@@ -68,26 +67,24 @@ userController.post(
   body('email').isEmail(),
   body('password').isLength({ min: 5, max: 50 }),
   async (req: Request, res: Response): Promise<Response> => {
-    logger.info(`try create user ${req.body.email}`);
     const { name, email, username, password } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(STATUS_CODE.INVALID_PARAMETERS).json({ errors: errors.array() });
     }
 
     try {
       const user = await userService.UserExistsByEmail(req.body.email);
       if (user !== undefined) {
-        res.statusCode = 409;
-        return res.json({ error: 'E-mail já cadastrado!' });
+        res.statusCode = STATUS_CODE.CONFLICT;
+        return res.json({ error: messages.error.email.registered });
       }
 
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(password, salt);
 
-      // @ts-ignore
-      const newUser = await userService.Create({ name, email, username, hash });
+      const newUser = await userService.Create({ name, email, username, hash, img: '' });
 
       return jwt.sign(
         { email: newUser.email, name: newUser.name, id: newUser._id },
@@ -95,19 +92,18 @@ userController.post(
         { expiresIn: '24h' },
         (error, token) => {
           if (error) {
-            return res.sendStatus(500);
+            return res.sendStatus(STATUS_CODE.ERROR_IN_SERVER);
           }
           return res.json({ token, email, id: newUser._id });
         },
       );
     } catch (error) {
-      return res.sendStatus(500);
+      return res.sendStatus(STATUS_CODE.ERROR_IN_SERVER);
     }
   },
 );
 
-userController.delete('/user', userAuth, async (req: Request, res: Response): Promise<Response> => {
-  // @ts-ignore
+userController.delete('/user', userAuth, async (req: MiddlewareRequest, res: Response): Promise<Response> => {
   const idUser = req.data.id;
   await postService.DeleteAllPostByUser(idUser);
   await userService.DeleteUserById(idUser);
@@ -116,7 +112,7 @@ userController.delete('/user', userAuth, async (req: Request, res: Response): Pr
   await CommentService.DeleteAllComments(idUser);
   await MessageService.DeleteAllMessages(idUser);
   await ItemBioService.DeleteAllItemBios(idUser);
-  return res.sendStatus(200);
+  return res.sendStatus(STATUS_CODE.SUCCESS);
 });
 
 userController.post('/auth', async (req: Request, res: Response): Promise<Response> => {
@@ -125,17 +121,17 @@ userController.post('/auth', async (req: Request, res: Response): Promise<Respon
   const user = await userService.FindUserByEmail(email);
 
   if (user === undefined) {
-    return res.sendStatus(404);
+    return res.sendStatus(STATUS_CODE.NOT_FOUND);
   }
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
-    return res.sendStatus(403);
+    return res.sendStatus(STATUS_CODE.NOT_AUTHORIZED);
   }
 
   return jwt.sign({ email, name: user.name, id: user._id }, jwtSecret, { expiresIn: '24h' }, (error, token) => {
     if (error) {
-      return res.sendStatus(500);
+      return res.sendStatus(STATUS_CODE.ERROR_IN_SERVER);
     }
     return res.json({ token, id: user._id });
   });
@@ -151,145 +147,111 @@ userController.get('/user/:id', userAuth, async (req: Request, res: Response): P
   try {
     user = await userService.FindById(req.params.id);
   } catch (error) {
-    return res.sendStatus(500);
+    return res.sendStatus(STATUS_CODE.ERROR_IN_SERVER);
   }
 
   if (!user) {
-    return res.sendStatus(404);
+    return res.sendStatus(STATUS_CODE.NOT_FOUND);
   }
 
   return res.json([user]);
 });
 
-userController.put('/user/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
-  // @ts-ignore
+userController.put('/user/:id', userAuth, async (req: MiddlewareRequest, res: Response): Promise<Response> => {
   const { name, username, email, password, itemBio, bio, motivational } = req.body;
-  let { img } = req.body;
+  const { img } = req.body;
   const id = processId(req.params.id);
-  // @ts-ignore
   const user = processId(req.data.id);
+
   let updatePassword;
 
-  if (id !== `${user}`) {
-    // Só pode alterar a si mesmo
-    return res.sendStatus(403);
-  }
-  if (name === '' || id === '' || username === '' || name === undefined || id === undefined || username === undefined) {
-    return res.sendStatus(400);
+  if (id !== user) {
+    return res.sendStatus(STATUS_CODE.NOT_AUTHORIZED);
   }
 
-  if (password === '' || password === undefined) {
+  if (!name || !id || !username || !name) {
+    return res.sendStatus(STATUS_CODE.INVALID_PARAMETERS);
+  }
+
+  if (!password) {
     updatePassword = false;
   } else {
     updatePassword = true;
   }
 
-  if (img === undefined) {
-    // @ts-ignore
-    img = '';
-  }
-
-  let update = {};
+  let update: any = {};
   let salt = '';
   let hash = '';
   try {
     if (updatePassword) {
       salt = await bcrypt.genSalt(10);
       hash = await bcrypt.hash(password, salt);
-      update = { name, password: hash, username };
+      update = { name, password: hash, username, motivational, img: img || '', bio };
     } else {
-      update = { name, username };
+      update = { name, username, motivational, img: img || '', bio };
     }
 
-    const hasImage = img !== '';
-    if (hasImage) {
-      // @ts-ignore
-      update.img = img;
-    }
-
-    const hasMotivational = motivational !== '' && motivational !== undefined;
-    if (hasMotivational) {
-      // @ts-ignore
-      update.motivational = motivational;
-    }
-
-    const hasBio = bio !== '' && bio !== undefined;
-    if (hasBio) {
-      // @ts-ignore
-      update.bio = bio;
-    }
-
-    // Tem nova email
-    if (email !== '' && email !== undefined) {
+    if (email) {
       if (!processEmail(email)) {
-        return res.status(400).json({ error: 'E-mail é inválido' });
+        return res.status(STATUS_CODE.INVALID_PARAMETERS).json({ error: messages.error.invalid.email });
       }
+
       const userEmailExists = await userService.UserExistsByEmail(email);
       if (userEmailExists !== undefined) {
-        res.statusCode = 409;
-        return res.json({ error: 'E-mail já cadastrado!' });
+        res.statusCode = STATUS_CODE.CONFLICT;
+
+        return res.json({ error: messages.error.email.registered });
       }
-      // @ts-ignore
+
       update.email = email;
     }
 
     if (itemBio) {
-      // @ts-ignore
       update.itemBio = [];
 
-      // Loop para adicionar os novos itens
-      for (let i = 0; i < itemBio.length; i += 1) {
-        // Relaciona os itens com o usuário
+      const itemsBio = await itemBio?.map(async (bioItem) =>
+        ItemBioService.Create(bioItem[0], bioItem[1], id).then((item: ItemBioSchema) => item._id),
+      );
 
-        // eslint-disable-next-line no-await-in-loop
-        const item: ItemBioSchema = await ItemBioService.Create(itemBio[i][0], itemBio[i][1], id);
-        // @ts-ignore
-        // eslint-disable-next-line no-await-in-loop
-        await update.itemBio.push(item._id);
-      }
+      await Promise.all(itemsBio).then((values) => {
+        update.itemBio = values;
+      });
     }
 
-    // Atualiza o perfil do usuário
     await userService.FindByIdAndUpdate(id, update);
-
-    // retorna os dados atualizados!
     const userNew = await userService.FindById(id);
 
-    if (userNew === null || userNew === undefined) {
-      return res.sendStatus(404);
+    if (!userNew) {
+      return res.sendStatus(STATUS_CODE.NOT_FOUND);
     }
+
     return res.json(userNew);
   } catch (error) {
-    return res.sendStatus(500);
+    return res.sendStatus(STATUS_CODE.ERROR_IN_SERVER);
   }
 });
 
-userController.post('/user/follow/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
-  // @ts-ignore
+userController.post('/user/follow/:id', userAuth, async (req: MiddlewareRequest, res: Response): Promise<Response> => {
   const idUserToken = processId(req.data.id);
   const idUserFollow = processId(req.params.id);
 
   if (idUserToken === idUserFollow) {
-    res.statusCode = 400;
-    return res.json({ msg: 'Usuário não pode seguir a si mesmo!' });
+    res.statusCode = STATUS_CODE.INVALID_PARAMETERS;
+    return res.json({ msg: messages.error.user.cannot.follow.himself });
   }
 
   try {
-    // Encontra o usuário que quer seguir e o usuário que será seguido
     const userFollow = await userService.FindByIdNotPopulate(idUserFollow);
     const user = await userService.FindByIdNotPopulate(idUserToken);
 
-    // Algum usuário não encontrado
-    if (userFollow === '' || user === '' || userFollow === null || user === null) {
-      return res.sendStatus(404);
+    if (!userFollow || !user) {
+      return res.sendStatus(STATUS_CODE.NOT_FOUND);
     }
 
-    // Verifica se o usuário que quer seguir já está seguindo o outro usuário
-    const filterFollonUser = user.following.filter((item) => item._id?.toString() !== idUserFollow?.toString());
+    const filterFollowingUser = user.following.filter((item) => item._id?.toString() !== idUserFollow?.toString());
 
-    // Usuário NÃO estava seguindo
-    if (filterFollonUser.length === user.following.length) {
-      // Atualizar ambos os lados
+    const userNotFollowing = filterFollowingUser.length === user.following.length;
+    if (userNotFollowing) {
       user.following.push(userFollow._id);
       userFollow.followers.push(user._id);
 
@@ -297,32 +259,28 @@ userController.post('/user/follow/:id', userAuth, async (req: Request, res: Resp
       await userFollow.save();
 
       return res.json({ followed: true });
-
-      // unfolow
     }
 
-    // Atualizar ambos os lados
-    user.following = filterFollonUser;
-    const filterRemoveFollon = user.followers.filter((item) => item._id != idUserToken);
-    userFollow.followers = filterRemoveFollon;
+    user.following = filterFollowingUser;
+    const filterRemoveFollowing = user.followers.filter((item) => item._id !== idUserToken);
+    userFollow.followers = filterRemoveFollowing;
 
     await user.save();
     await userFollow.save();
     return res.json({ followed: false });
   } catch (error) {
-    return res.sendStatus(500);
+    return res.sendStatus(STATUS_CODE.ERROR_IN_SERVER);
   }
 });
 
-userController.get('/me', userAuth, async (req: Request, res: Response): Promise<Response> => {
-  // @ts-ignore
+userController.get('/me', userAuth, async (req: MiddlewareRequest, res: Response): Promise<Response> => {
   const id = processId(req.data.id);
 
   const user = await userService.FindById(id);
 
   if (user === undefined) {
-    res.statusCode = 404;
-    return res.json({ msg: 'Identificador do usuário não encontrado' });
+    res.statusCode = STATUS_CODE.NOT_FOUND;
+    return res.json({ msg: messages.error.user.not.found });
   }
 
   return res.json([user]);
