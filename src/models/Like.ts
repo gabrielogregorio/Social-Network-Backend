@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 
-const likeSchema = new mongoose.Schema({
+export interface ILike {
+  _id: string;
+  text: string;
+  post: string;
+  user: string;
+}
+
+const likeSchema = new mongoose.Schema<ILike>({
   text: {
     type: String,
   },
@@ -14,5 +21,5 @@ const likeSchema = new mongoose.Schema({
   },
 });
 
-const Like = mongoose.model('Like', likeSchema);
+const Like = mongoose.model<ILike>('Like', likeSchema);
 export default Like;

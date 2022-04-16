@@ -1,4 +1,4 @@
-import Post from '@/models/Post';
+import Post, { IPost } from '@/models/Post';
 import dataUser from '@/factories/dataUsers';
 import dataPosts from '@/factories/dataPosts';
 import UserService from '@/services/User';
@@ -15,7 +15,7 @@ export default class PostService {
     return newPost.save();
   }
 
-  static async FindById(id) {
+  static async FindById(id):Promise<IPost> {
     return Post.findById({ _id: id });
   }
 
@@ -23,10 +23,12 @@ export default class PostService {
     const posts = await Post.find({ _id: { $in: ids } })
       .sort({ _id: 'desc' })
       .populate('user comments likes');
+
     const postFactories = [];
     posts.forEach(async (post) => {
       postFactories.push(dataPosts.Build(post, user, ids));
     });
+
     return postFactories;
   }
 
@@ -35,8 +37,7 @@ export default class PostService {
   }
 
   static async FindPostsByUser(user) {
-    const posts = await Post.find({ user }).sort({ _id: 'desc' }).populate('user comments likes');
-    return posts;
+    return Post.find({ user }).sort({ _id: 'desc' }).populate('user comments likes');
   }
 
   static async findFollowingPosts(id, includedUser = false) {
@@ -46,6 +47,7 @@ export default class PostService {
     if (includedUser) {
       ids.push(id);
     }
+
     return Post.find({ user: { $in: ids } })
       .sort({ _id: 'desc' })
       .populate('user comments likes');

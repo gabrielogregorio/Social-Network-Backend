@@ -24,6 +24,7 @@ router.post('/post/like/:id', userAuth, async (req: Request, res: Response): Pro
 
       // aaaa
       post.likes = post.likes.filter((value) => value != `${likeExistente._id}`);
+      // @ts-ignore
       await post.save();
 
       return res.json({ includeLike: false });
@@ -36,7 +37,9 @@ router.post('/post/like/:id', userAuth, async (req: Request, res: Response): Pro
     const newLike = await LikeService.Create(id, user);
     const post = await PostService.FindById(id);
 
+    // @ts-ignore
     post.likes.push(newLike);
+    // @ts-ignore
     await post.save();
 
     return res.json({ includeLike: true });

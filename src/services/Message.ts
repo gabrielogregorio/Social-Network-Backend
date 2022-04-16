@@ -30,14 +30,12 @@ export default class MessageService {
   static async FindAllUsersOnePersonCanSendMessage(id) {
     const usersFolling = await UserService.findFollowingUsers(id, true);
 
-    // Obter todas as mensagens que foram para o usuário ou que ele enviou
     const users = await Message.find({ $or: [{ to: id }, { from: id }] }).populate('from to');
     const listUsers = [];
     const listIds = [];
     let to = '';
     let from = '';
 
-    // Varredura de dados para obter todas as pessoas unicas
     users.forEach((user) => {
       to = user.to;
       from = user.from;
@@ -51,6 +49,7 @@ export default class MessageService {
           listIds.push(`${to._id}`);
         }
       }
+
       // @ts-ignore
       if (`${from._id}` !== `${id}`) {
         // @ts-ignore
@@ -62,12 +61,11 @@ export default class MessageService {
       }
     });
 
-    // Adição de pessoas que o dono segue
-    usersFolling.forEach((mudarNomeOkkkkkkkkkkkk) => {
-      if (`${mudarNomeOkkkkkkkkkkkk._id}` !== `${id}`) {
-        if (listIds.includes(`${mudarNomeOkkkkkkkkkkkk._id}`) === false) {
-          listUsers.push(dataUser.Build(mudarNomeOkkkkkkkkkkkk));
-          listIds.push(`${mudarNomeOkkkkkkkkkkkk._id}`);
+    usersFolling.forEach((user) => {
+      if (`${user._id}` !== `${id}`) {
+        if (listIds.includes(`${user._id}`) === false) {
+          listUsers.push(dataUser.Build(user));
+          listIds.push(`${user._id}`);
         }
       }
     });

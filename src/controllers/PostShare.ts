@@ -21,6 +21,7 @@ router.post('/post/share/:id', userAuth, async (req: Request, res: Response): Pr
   const sharedPost = await PostService.FindById(idPost);
   // @ts-ignore
   sharedPost.thisReferencesShared.push(newPostSave._id);
+  // @ts-ignore
   await sharedPost.save();
   // @ts-ignore
   return res.json({ _id: newPostSave._id, user, shared: idPost });

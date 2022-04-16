@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 
-const itemSchema = new mongoose.Schema({
+export interface ItemSchema {
+  _id: string;
+  text: string;
+  typeItem: string;
+  user: string;
+}
+
+const itemSchema = new mongoose.Schema<ItemSchema>({
   text: {
     type: String,
   },
@@ -13,5 +20,5 @@ const itemSchema = new mongoose.Schema({
   },
 });
 
-const ItemBio = mongoose.model('ItemBio', itemSchema);
+const ItemBio = mongoose.model<ItemSchema>('ItemBio', itemSchema);
 export default ItemBio;

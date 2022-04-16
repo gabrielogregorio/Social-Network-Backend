@@ -41,6 +41,7 @@ router.post('/post/comment/:id', userAuth, async (req: Request, res: Response): 
 
     const post = await PostService.FindById(id);
     post.comments.push(newComment);
+    // @ts-ignore
     await post.save();
 
     return res.json({ id: newComment.id });

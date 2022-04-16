@@ -1,26 +1,25 @@
 import mongoose from 'mongoose';
 
+export interface IComment {
+  _id: string;
+  text: string;
+  replie: IComment;
+  replies: string[];
+  base: boolean;
+  post: string;
+  user: string;
+}
+
 const commentSchema = new mongoose.Schema(
   {
-    // Texto do comentário
     text: { type: String },
-
-    // está respondendo outro comentário
     replie: this,
-
-    // Respostas que o comentário recebeu
     replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
-
-    // Resposta está na camada 1 dos posts
     base: { type: Boolean, default: false },
-
-    // post a qual ele pertence
     post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post',
     },
-
-    // usuário que comentou
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -31,11 +30,10 @@ const commentSchema = new mongoose.Schema(
   },
 );
 
-// Exibe de forma recursiva as respostas
-const autoPopulateChildren = function (next) {
+function autoPopulateChildren(next) {
   this.populate('replies');
   next();
-};
+}
 
 commentSchema.pre('findOne', autoPopulateChildren).pre('find', autoPopulateChildren);
 

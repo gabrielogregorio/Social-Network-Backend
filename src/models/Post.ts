@@ -1,6 +1,21 @@
 import mongoose from 'mongoose';
 
-const postSchema = new mongoose.Schema(
+export interface IPost {
+  _id: string;
+  title: string;
+  body: string;
+  test: boolean;
+  img: string;
+  sharePost: IPost;
+  edited: boolean;
+  thisReferencesShared: IPost[];
+  user: string;
+  likes: string[];
+  saves: string[];
+  comments: string[];
+}
+
+const postSchema = new mongoose.Schema<IPost>(
   {
     title: String,
     body: String,
@@ -37,5 +52,5 @@ const postSchema = new mongoose.Schema(
   },
 );
 
-const Post = mongoose.model('Post', postSchema);
+const Post = mongoose.model<IPost>('Post', postSchema);
 export default Post;
