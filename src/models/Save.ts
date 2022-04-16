@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export interface ISave {
-  _id: string;
+  _id: Types.ObjectId;
   text: string;
   post: string;
   user: string;

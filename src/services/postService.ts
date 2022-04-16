@@ -1,7 +1,7 @@
 import Post, { IPost } from '@/models/Post';
 import dataUser from '@/factories/dataUsers';
 import dataPosts from '@/factories/dataPosts';
-import UserService from '@/services/User';
+import UserService from '@/services/userService';
 
 export default class PostService {
   static async Create({ body, user, test, img, sharePost }) {
@@ -15,7 +15,7 @@ export default class PostService {
     return newPost.save();
   }
 
-  static async FindById(id):Promise<IPost> {
+  static async FindById(id): Promise<IPost> {
     return Post.findById({ _id: id });
   }
 

@@ -2,14 +2,14 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import userAuth from '../middlewares/userAuth';
-import PostService from '../services/Post';
+import PostService from '../services/postService';
 import { processId } from '../util/textProcess';
 
 dotenv.config();
 
-const router = express.Router();
+const postShareController = express.Router();
 
-router.post('/post/share/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postShareController.post('/post/share/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const user = processId(req.data.id);
   const idPost = processId(req.params.id);
@@ -27,4 +27,4 @@ router.post('/post/share/:id', userAuth, async (req: Request, res: Response): Pr
   return res.json({ _id: newPostSave._id, user, shared: idPost });
 });
 
-export default router;
+export default postShareController;

@@ -8,12 +8,12 @@ import cors from 'cors';
 import { v4 } from 'uuid';
 import Post from '@/models/Post';
 import User from '@/models/User';
-import UserController from '@/controllers/User';
-import PostCommentController from '@/controllers/PostComment';
-import PostController from '@/controllers/Post';
-import MessageController from '@/controllers/Message';
-import PostLikeController from '@/controllers/PostLike';
-import PostShareController from '@/controllers/PostShare';
+import UserController from '@/controllers/UserController';
+import PostCommentController from '@/controllers/PostCommentController';
+import PostController from '@/controllers/PostController';
+import MessageController from '@/controllers/MessageController';
+import PostLikeController from '@/controllers/PostLikeController';
+import PostShareController from '@/controllers/PostShareController';
 import userAuth from '@/middlewares/userAuth';
 
 const app: Application = express();

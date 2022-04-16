@@ -7,19 +7,20 @@ import { body, validationResult } from 'express-validator';
 import { format } from 'util';
 import { uuid } from 'uuidv4';
 import Multer from 'multer';
-import CommentService from '@/services/Comment';
+import CommentService from '@/services/commentService';
 import userAuth from '@/middlewares/userAuth';
 import { processId, processEmail } from '@/util/textProcess';
-import userService from '@/services/User';
-import postService from '@/services/Post';
-import saveService from '@/services/SavePosts';
-import likeService from '@/services/Like';
-import MessageService from '@/services/Message';
-import ItemBioService from '@/services/ItemBio';
-import { bucket } from './bucket';
+import userService from '@/services/userService';
+import postService from '@/services/postService';
+import saveService from '@/services/savePostsService';
+import likeService from '@/services/likeService';
+import MessageService from '@/services/messageService';
+import ItemBioService from '@/services/itemBioService';
+import { ItemBioSchema } from '@/models/ItemBio';
+import { bucket } from '../util/bucket';
 import logger from '../logger';
 
-const router: Router = express.Router();
+const userController: Router = express.Router();
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -32,7 +33,7 @@ const multer = Multer({
   },
 });
 
-router.post(
+userController.post(
   '/userLoadFile',
   userAuth,
   multer.single('image'),
@@ -60,7 +61,7 @@ router.post(
   },
 );
 
-router.post(
+userController.post(
   '/user',
   body('name').isLength({ min: 2, max: 50 }),
   body('username').isLength({ min: 2, max: 50 }),
@@ -105,7 +106,7 @@ router.post(
   },
 );
 
-router.delete('/user', userAuth, async (req: Request, res: Response): Promise<Response> => {
+userController.delete('/user', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const idUser = req.data.id;
   await postService.DeleteAllPostByUser(idUser);
@@ -118,7 +119,7 @@ router.delete('/user', userAuth, async (req: Request, res: Response): Promise<Re
   return res.sendStatus(200);
 });
 
-router.post('/auth', async (req: Request, res: Response): Promise<Response> => {
+userController.post('/auth', async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
 
   const user = await userService.FindUserByEmail(email);
@@ -140,12 +141,12 @@ router.post('/auth', async (req: Request, res: Response): Promise<Response> => {
   });
 });
 
-router.get('/users', userAuth, async (_req: Request, res: Response): Promise<Response> => {
+userController.get('/users', userAuth, async (_req: Request, res: Response): Promise<Response> => {
   const users = await userService.FindAllUsers();
   return res.json(users);
 });
 
-router.get('/user/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+userController.get('/user/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   let user;
   try {
     user = await userService.FindById(req.params.id);
@@ -160,7 +161,7 @@ router.get('/user/:id', userAuth, async (req: Request, res: Response): Promise<R
   return res.json([user]);
 });
 
-router.put('/user/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+userController.put('/user/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const { name, username, email, password, itemBio, bio, motivational } = req.body;
   let { img } = req.body;
@@ -232,8 +233,7 @@ router.put('/user/:id', userAuth, async (req: Request, res: Response): Promise<R
       update.email = email;
     }
 
-    // Tem novos items para a bio
-    if (itemBio !== '' && itemBio !== undefined && itemBio !== null) {
+    if (itemBio) {
       // @ts-ignore
       update.itemBio = [];
 
@@ -242,7 +242,7 @@ router.put('/user/:id', userAuth, async (req: Request, res: Response): Promise<R
         // Relaciona os itens com o usuário
 
         // eslint-disable-next-line no-await-in-loop
-        const item = await ItemBioService.Create(itemBio[i][0], itemBio[i][1], id);
+        const item: ItemBioSchema = await ItemBioService.Create(itemBio[i][0], itemBio[i][1], id);
         // @ts-ignore
         // eslint-disable-next-line no-await-in-loop
         await update.itemBio.push(item._id);
@@ -264,7 +264,7 @@ router.put('/user/:id', userAuth, async (req: Request, res: Response): Promise<R
   }
 });
 
-router.post('/user/follow/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+userController.post('/user/follow/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const idUserToken = processId(req.data.id);
   const idUserFollow = processId(req.params.id);
@@ -314,7 +314,7 @@ router.post('/user/follow/:id', userAuth, async (req: Request, res: Response): P
   }
 });
 
-router.get('/me', userAuth, async (req: Request, res: Response): Promise<Response> => {
+userController.get('/me', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const id = processId(req.data.id);
 
@@ -328,4 +328,4 @@ router.get('/me', userAuth, async (req: Request, res: Response): Promise<Respons
   return res.json([user]);
 });
 
-export default router;
+export default userController;

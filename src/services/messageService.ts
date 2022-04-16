@@ -1,40 +1,55 @@
 /* eslint-disable no-underscore-dangle */
-import Message from '@/models/Message';
+import Message, { IMessage } from '@/models/Message';
 import dataUser from '@/factories/dataUsers';
-import UserService from '@/services/User';
+import UserService from '@/services/userService';
+import { rowsAffectedInterface } from 'src/interfaces/delete';
+import { IUser } from '@/models/User';
+import { Types } from 'mongoose';
+
+type messageServiceCreate = {
+  message: string;
+  from: string;
+  to: string;
+  test: boolean;
+};
 
 export default class MessageService {
-  static async Create({ message, from, to, test }) {
+  static async Create({ message, from, to, test }: messageServiceCreate): Promise<IMessage> {
     const newMessage = new Message({ message, from, to, test });
     await newMessage.save();
     return newMessage;
   }
 
-  static async DeleteAllMessages(userId) {
-    return Message.deleteMany({ from: userId });
+  static async DeleteAllMessages(userId): Promise<rowsAffectedInterface> {
+    const { deletedCount } = await Message.deleteMany({ from: userId });
+    return { rowsAffected: deletedCount };
   }
 
-  static async FindAllMessages(id) {
+  static async FindAllMessages(id: string): Promise<IMessage[]> {
     return Message.find({ $or: [{ to: id }, { from: id }] }).populate('from to');
   }
 
-  static async FindAllMessagesInUsers(id1, id2) {
+  static async FindAllMessagesInUsers(id1: string, id2: string): Promise<any> {
     return Message.find({
       $or: [
         { to: id1, from: id2 },
         { to: id2, from: id1 },
       ],
-    }).populate('from to');
+    }).populate<{
+      to: IUser;
+      from: IUser;
+    }>('from to');
   }
 
   static async FindAllUsersOnePersonCanSendMessage(id) {
-    const usersFolling = await UserService.findFollowingUsers(id, true);
+    const usersFollowing = await UserService.findFollowingUsers(id, true);
 
     const users = await Message.find({ $or: [{ to: id }, { from: id }] }).populate('from to');
     const listUsers = [];
     const listIds = [];
-    let to = '';
-    let from = '';
+
+    let to: Types.ObjectId = null;
+    let from: Types.ObjectId = null;
 
     users.forEach((user) => {
       to = user.to;
@@ -61,7 +76,7 @@ export default class MessageService {
       }
     });
 
-    usersFolling.forEach((user) => {
+    usersFollowing.forEach((user) => {
       if (`${user._id}` !== `${id}`) {
         if (listIds.includes(`${user._id}`) === false) {
           listUsers.push(dataUser.Build(user));

@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export interface IUser {
-  _id: string;
+  _id: Types.ObjectId;
   name: string;
   email: string;
   username: string;
@@ -11,8 +11,8 @@ export interface IUser {
   motivational: string;
   itemBio: string[];
   posts: string;
-  following: IUser[];
-  followers: IUser[];
+  following: Types.ObjectId[];
+  followers: Types.ObjectId[];
   likes: string[];
   saves: string[];
 }

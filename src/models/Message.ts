@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export interface IMessage {
-  _id: string;
+  _id: Types.ObjectId;
   message: string;
   test: boolean;
-  to: string;
-  from: string;
+  to: Types.ObjectId;
+  from: Types.ObjectId;
   dateSendMessage: any;
   dateReadMessage: any;
 }

@@ -1,13 +1,13 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export interface IComment {
-  _id: string;
+  _id: Types.ObjectId;
   text: string;
   replie: IComment;
-  replies: string[];
+  replies: Types.ObjectId[];
   base: boolean;
-  post: string;
-  user: string;
+  post: Types.ObjectId;
+  user: Types.ObjectId;
 }
 
 const commentSchema = new mongoose.Schema(

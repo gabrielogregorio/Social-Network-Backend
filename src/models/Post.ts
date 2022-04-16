@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export interface IPost {
-  _id: string;
+  _id: Types.ObjectId;
   title: string;
   body: string;
   test: boolean;
@@ -9,8 +9,8 @@ export interface IPost {
   sharePost: IPost;
   edited: boolean;
   thisReferencesShared: IPost[];
-  user: string;
-  likes: string[];
+  user: Types.ObjectId;
+  likes: Types.ObjectId[];
   saves: string[];
   comments: string[];
 }

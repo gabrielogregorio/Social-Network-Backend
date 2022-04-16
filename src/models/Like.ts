@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export interface ILike {
-  _id: string;
+  _id: Types.ObjectId;
   text: string;
   post: string;
   user: string;

@@ -6,17 +6,18 @@ import Multer from 'multer';
 import { uuid } from 'uuidv4';
 import dotenv from 'dotenv';
 import DataUsers from '@/factories/dataUsers';
-import DataPosts from '../factories/dataPosts';
-import userAuth from '../middlewares/userAuth';
-import SavePostsService from '../services/SavePosts';
-import PostService from '../services/Post';
-import { processId } from '../util/textProcess';
-import UserService from '../services/User';
-import { bucket } from './bucket';
+import DataPosts from '@/factories/dataPosts';
+import userAuth from '@/middlewares/userAuth';
+import SavePostsService from '@/services/savePostsService';
+import { ISave } from '@/models/Save';
+import PostService from '@/services/postService';
+import { processId } from '@/util/textProcess';
+import UserService from '@/services/userService';
+import { bucket } from '@/util/bucket';
 
 dotenv.config();
 
-const router: Router = express.Router();
+const postController: Router = express.Router();
 
 const multer = Multer({
   storage: Multer.memoryStorage(),
@@ -25,7 +26,7 @@ const multer = Multer({
   },
 });
 
-router.post(
+postController.post(
   '/postLoadFile',
   userAuth,
   multer.single('image'),
@@ -53,7 +54,7 @@ router.post(
   },
 );
 
-router.post('/post', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.post('/post', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   let { test, img } = req.body;
   const { body } = req.body;
@@ -82,7 +83,7 @@ router.post('/post', userAuth, async (req: Request, res: Response): Promise<Resp
   }
 });
 
-router.get('/posts', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.get('/posts', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const user = processId(req.data.id);
   if (user === undefined || user === '') {
@@ -90,7 +91,7 @@ router.get('/posts', userAuth, async (req: Request, res: Response): Promise<Resp
   }
 
   const posts = await PostService.findFollowingPosts(user, true);
-  const saves = await SavePostsService.FindByUser(user);
+  const saves: ISave[] = await SavePostsService.FindByUser(user);
 
   const idSavedByUser = [];
   saves.forEach((item) => {
@@ -106,7 +107,7 @@ router.get('/posts', userAuth, async (req: Request, res: Response): Promise<Resp
   return res.json(postFactories);
 });
 
-router.get('/post/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.get('/post/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const user = processId(req.data.id);
   let posts = null;
@@ -120,7 +121,7 @@ router.get('/post/:id', userAuth, async (req: Request, res: Response): Promise<R
     return res.sendStatus(404);
   }
 
-  const saves = await SavePostsService.FindByUser(user);
+  const saves: ISave[] = await SavePostsService.FindByUser(user);
   const idSavedByUser = [];
   saves.forEach((item) => {
     idSavedByUser.push(item.post);
@@ -133,7 +134,7 @@ router.get('/post/:id', userAuth, async (req: Request, res: Response): Promise<R
   return res.json(postFactories);
 });
 
-router.put('/post/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.put('/post/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   const { body, img } = req.body;
   const id = processId(req.params.id);
   // @ts-ignore
@@ -167,14 +168,14 @@ router.put('/post/:id', userAuth, async (req: Request, res: Response): Promise<R
   }
 });
 
-router.post('/post/save/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.post('/post/save/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   const id = processId(req.params.id);
   // @ts-ignore
   const user = processId(req.data.id);
   try {
-    const saveExists = await SavePostsService.FindOne(id, user);
+    const saveExists: ISave = await SavePostsService.FindOne(id, user);
 
-    if (saveExists != null) {
+    if (saveExists) {
       await SavePostsService.DeleteOne(id, user);
       const userLocal = await UserService.FindByIdRaw(user);
       userLocal.saves = userLocal.saves.filter((value) => value !== `${saveExists._id}`);
@@ -188,7 +189,7 @@ router.post('/post/save/:id', userAuth, async (req: Request, res: Response): Pro
 
   try {
     // @ts-ignore
-    const newSave = await SavePostsService.Create(id, user);
+    const newSave: ISave = await SavePostsService.Create(id, user);
 
     const userLocal = await UserService.FindByIdRaw(user);
 
@@ -201,10 +202,10 @@ router.post('/post/save/:id', userAuth, async (req: Request, res: Response): Pro
   }
 });
 
-router.get('/post/list/save', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.get('/post/list/save', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const user = processId(req.data.id);
-  const saves = await SavePostsService.FindByUser(user);
+  const saves: ISave[] = await SavePostsService.FindByUser(user);
   const ids = [];
   saves.forEach((item) => {
     ids.push(item.post);
@@ -215,7 +216,7 @@ router.get('/post/list/save', userAuth, async (req: Request, res: Response): Pro
 });
 
 // Compartilha um post
-router.post('/post/share/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.post('/post/share/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const user = processId(req.data.id);
   const idPost = processId(req.params.id);
@@ -234,7 +235,7 @@ router.post('/post/share/:id', userAuth, async (req: Request, res: Response): Pr
   return res.json({ _id: newPostSave._id, user, shared: idPost });
 });
 
-router.delete('/post/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.delete('/post/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   const id = processId(req.params.id);
 
   try {
@@ -248,7 +249,7 @@ router.delete('/post/:id', userAuth, async (req: Request, res: Response): Promis
   }
 });
 
-router.get('/posts/user/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+postController.get('/posts/user/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   const user = processId(req.params.id);
   // @ts-ignore
   const userCall = processId(req.data.id);
@@ -262,7 +263,7 @@ router.get('/posts/user/:id', userAuth, async (req: Request, res: Response): Pro
     ids.push(user);
     const posts = await PostService.FindPostsByUser(user);
 
-    const saves = await SavePostsService.FindByUser(user);
+    const saves: ISave[] = await SavePostsService.FindByUser(user);
     const idSavedByUser = [];
     saves.forEach((item) => {
       idSavedByUser.push(item.post);
@@ -280,4 +281,4 @@ router.get('/posts/user/:id', userAuth, async (req: Request, res: Response): Pro
   }
 });
 
-export default router;
+export default postController;

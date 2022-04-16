@@ -1,11 +1,11 @@
 import express, { Request, Response, Router } from 'express';
 import userAuth from '../middlewares/userAuth';
 import { processId } from '../util/textProcess';
-import MessageService from '../services/Message';
+import MessageService from '../services/messageService';
 
-const router: Router = express.Router();
+const messageController: Router = express.Router();
 
-router.post('/message', userAuth, async (req: Request, res: Response): Promise<Response> => {
+messageController.post('/message', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const from = processId(req.data.id);
   const to = processId(req.body.to);
@@ -29,7 +29,7 @@ router.post('/message', userAuth, async (req: Request, res: Response): Promise<R
   return res.json(newMessage);
 });
 
-router.get('/messages', userAuth, async (req: Request, res: Response): Promise<Response> => {
+messageController.get('/messages', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const id = processId(req.data.id);
 
@@ -37,7 +37,7 @@ router.get('/messages', userAuth, async (req: Request, res: Response): Promise<R
   return res.json(messagesAllUsers);
 });
 
-router.get('/message/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
+messageController.get('/message/:id', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const id1 = processId(req.data.id);
   const id2 = processId(req.params.id);
@@ -47,7 +47,7 @@ router.get('/message/:id', userAuth, async (req: Request, res: Response): Promis
   return res.json(messagesAllUsers);
 });
 
-router.get('/messages/users', userAuth, async (req: Request, res: Response): Promise<Response> => {
+messageController.get('/messages/users', userAuth, async (req: Request, res: Response): Promise<Response> => {
   // @ts-ignore
   const id = processId(req.data.id);
 
@@ -57,4 +57,4 @@ router.get('/messages/users', userAuth, async (req: Request, res: Response): Pro
   return res.json(listUsers);
 });
 
-export default router;
+export default messageController;
