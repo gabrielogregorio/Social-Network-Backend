@@ -91,7 +91,7 @@ app.post('/sendMessageUser', userAuth, (req: Request, res: Response): Response =
   return res.sendStatus(STATUS_CODE.SUCCESS);
 });
 
-app.post('/validate', userAuth, (req: Request, res: Response): Response => res.sendStatus(STATUS_CODE.SUCCESS));
+app.post('/validate', userAuth, (_req: Request, res: Response): Response => res.sendStatus(STATUS_CODE.SUCCESS));
 
 app.get('/', (_req: Request, res: Response): Response => res.json({ status: 'API is Running' }));
 
@@ -104,7 +104,7 @@ app.delete('/user/:email', async (req: Request, res: Response): Promise<Response
   }
 });
 
-app.delete('/image', async (req: Request, res: Response): Promise<Response> => {
+app.delete('/image', async (_req: Request, res: Response): Promise<Response> => {
   try {
     await Post.deleteMany({ test: true });
     return res.sendStatus(STATUS_CODE.SUCCESS);

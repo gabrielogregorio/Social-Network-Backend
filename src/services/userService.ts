@@ -60,14 +60,6 @@ export default class UserService {
     return userExists;
   }
 
-  static async FindUserByEmail(email: string): Promise<any> {
-    const userExists = await User.findOne({ email });
-    if (userExists === null) {
-      return undefined;
-    }
-    return userExists;
-  }
-
   static async DeleteUserById(_id: string): Promise<any> {
     return User.deleteOne({ _id });
   }

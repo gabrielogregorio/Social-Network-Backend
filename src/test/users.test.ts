@@ -1,6 +1,7 @@
 import STATUS_CODE from '@/handlers/index';
 import supertest from 'supertest';
 import { app, mongoose } from '../app';
+import mockTests from '../mocks/tests.json';
 
 const request = supertest(app);
 let tokenValido = {};
@@ -8,35 +9,9 @@ let idUsuarioValido = '';
 let token2Valido = {};
 let idUsuario2Valido = '';
 
-const user = {
-  name: 'sherek',
-  username: 'sherek',
-  email: 'no-valid-email@fakemail.com',
-  itemBio: [
-    ['school', 'Graduou em análise e desenvolvimento de Sistemas na Fatec Araçatuba'],
-    ['status', 'Solteiro'],
-    ['work', 'Desenvolvedor web'],
-    ['film', 'Interestelar'],
-  ],
-  bio: 'Lucas 🌻\n🏠 \n⏳ 23\n♍ testetesttesttestestes',
-  motivational: 'Loremmmmmmm snsadnadlaldjsaddssasdaad',
-  password: 'asdmkaksasdas',
-};
+const user = mockTests.createUser;
 
-const user2 = {
-  name: 'TTTTTTT',
-  username: 'TTTTTTTTT',
-  email: 'TTTTT@mail.com',
-  itemBio: [
-    ['school', '9d591724044b57d9b3607bbef28'],
-    ['status', '9d591724044b57d9b3607bbef28'],
-    ['work', '9d591724044b57d9b3607bbef28'],
-    ['film', '9d591724044b57d9b3607bbef28'],
-  ],
-  bio: '🌻🏠\n\n@9d591724044b57d9b3607bbef28',
-  motivational: '9d591724044b57d9b3607bbe',
-  password: '9d591724044b57d9b3607bbef285',
-};
+const user2 = mockTests.createUser2;
 
 beforeAll(async () => {
   await request.delete(`/user/${user.email}`);

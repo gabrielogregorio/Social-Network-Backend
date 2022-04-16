@@ -1,23 +1,24 @@
 import STATUS_CODE from '@/handlers/index';
 import supertest from 'supertest';
 import { app, mongoose } from '../app';
+import mockTests from '../mocks/tests.json';
 
 const request = supertest(app);
 let tokenValidoMessage = null;
 
 const user = {
-  name: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
-  email: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
-  username: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
-  password: 'AJSKEW34FDAGS@AJSKEW34FDAGS.com',
+  name: mockTests.username,
+  email: mockTests.username,
+  username: mockTests.username,
+  password: mockTests.password,
   idMessage: '',
 };
 
 const user2 = {
-  name: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
-  email: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
-  username: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
-  password: 'LPODHUIOQWNF@LPODHUIOQWNF.com',
+  name: mockTests.username2,
+  email: mockTests.username2,
+  username: mockTests.username2,
+  password: mockTests.password2,
   idMessage: '',
 };
 

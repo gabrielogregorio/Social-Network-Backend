@@ -32,13 +32,13 @@ postCommentController.post(
 
     try {
       if (replie !== undefined) {
-        const newComment = await CommentService.Create({ post: id, user, text, replie });
+        const newCommentReplies = await CommentService.Create({ post: id, user, text, replie });
 
         const originalComment = await CommentService.FindById(replie);
-        originalComment.replies.push(newComment);
+        originalComment.replies.push(newCommentReplies);
         await originalComment.save();
 
-        return res.json({ id: newComment.id, replie: originalComment._id });
+        return res.json({ id: newCommentReplies.id, replie: originalComment._id });
       }
 
       const newComment = await CommentService.Create({ post: id, user, text, base: true, replie: null });

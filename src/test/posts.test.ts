@@ -1,6 +1,7 @@
 import STATUS_CODE from '@/handlers/index';
 import supertest from 'supertest';
 import { app, mongoose } from '../app';
+import mockTests from '../mocks/tests.json';
 
 const request = supertest(app);
 const post = { body: 'Um body qualquer', test: true };
@@ -12,18 +13,18 @@ let token2Valido = {};
 require('dotenv/config');
 
 const user = {
-  name: 'testUserPost@testUserPost.com',
-  email: 'testUserPost@testUserPost.com',
-  username: 'testUserPost@testUserPost.com',
-  password: 'testUserPost@testUserPost.com',
+  name: mockTests.username3,
+  email: mockTests.username3,
+  username: mockTests.username3,
+  password: mockTests.password3,
   id: '',
 };
 
 const user2 = {
-  name: 'testUserPost2@testUserPost2.com',
-  email: 'testUserPost2@testUserPost2.com',
-  username: 'testUserPost2@testUserPost2.com',
-  password: 'testUserPost2@testUserPost2.com',
+  name: mockTests.username4,
+  email: mockTests.username4,
+  username: mockTests.username4,
+  password: mockTests.password4,
   id: '',
 };
 

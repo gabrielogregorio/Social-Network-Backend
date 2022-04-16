@@ -118,7 +118,7 @@ userController.delete('/user', userAuth, async (req: MiddlewareRequest, res: Res
 userController.post('/auth', async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
 
-  const user = await userService.FindUserByEmail(email);
+  const user = await userService.UserExistsByEmail(email);
 
   if (user === undefined) {
     return res.sendStatus(STATUS_CODE.NOT_FOUND);
@@ -160,10 +160,8 @@ userController.get('/user/:id', userAuth, async (req: Request, res: Response): P
 userController.put('/user/:id', userAuth, async (req: MiddlewareRequest, res: Response): Promise<Response> => {
   const { name, username, email, password, itemBio, bio, motivational } = req.body;
   const { img } = req.body;
-  const id = processId(req.params.id);
-  const user = processId(req.data.id);
-
-  let updatePassword;
+  const id: string = processId(req.params.id);
+  const user: string = processId(req.data.id);
 
   if (id !== user) {
     return res.sendStatus(STATUS_CODE.NOT_AUTHORIZED);
@@ -173,17 +171,12 @@ userController.put('/user/:id', userAuth, async (req: MiddlewareRequest, res: Re
     return res.sendStatus(STATUS_CODE.INVALID_PARAMETERS);
   }
 
-  if (!password) {
-    updatePassword = false;
-  } else {
-    updatePassword = true;
-  }
-
   let update: any = {};
   let salt = '';
   let hash = '';
+
   try {
-    if (updatePassword) {
+    if (!password) {
       salt = await bcrypt.genSalt(10);
       hash = await bcrypt.hash(password, salt);
       update = { name, password: hash, username, motivational, img: img || '', bio };
