@@ -16,6 +16,9 @@ import PostShareController from '@/controllers/PostShareController';
 import userAuth from '@/middlewares/userAuth';
 import { MiddlewareRequest } from 'src/interfaces/extends';
 import STATUS_CODE from '@/handlers/index';
+import docbytest from 'docbytest';
+import path from 'path';
+import statusCode from './example/statusCode';
 
 const app: Application = express();
 
@@ -112,5 +115,30 @@ app.delete('/image', async (_req: Request, res: Response): Promise<Response> => 
     return res.sendStatus(STATUS_CODE.SUCCESS);
   }
 });
+
+app.get('/docs-json', async (req, res) => {
+  const returnDev = false;
+
+  return res.json(
+    await docbytest({
+      statusCode,
+      returnDev,
+    }),
+  );
+});
+
+// configure docbytest-ui
+app.get('/docs', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../node_modules/docbytest-ui/build', 'index.html'));
+});
+
+app.use('/docs/static', express.static(path.join(__dirname, '../node_modules/docbytest-ui/build/static/')));
+
+app.use(
+  '/docs/manifest.json',
+  express.static(path.join(__dirname, '../node_modules/docbytest-ui/build/manifest.json')),
+);
+
+app.use('/docs/favicon.ico', express.static(path.join(__dirname, '../node_modules/docbytest-ui/build/favicon.ico')));
 
 export { app, mongoose, server };
